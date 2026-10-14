@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1093952200885",
+    "project_id": "loginnewapp-cdfff",
+    "storage_bucket": "loginnewapp-cdfff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093952200885:android:2ba1546992d3bfcfd81efc",
+        "android_client_info": {
+          "package_name": "com.example.login_learn_new_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhg3wRf_xVIX80b_w4hFl2xzdL1PDqjGY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
