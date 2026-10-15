@@ -30,7 +30,7 @@ class AuthController extends GetxController {
     if (name != null && name.trim().isNotEmpty) return name.trim();
     final email = user?.email;
     if (email != null && email.isNotEmpty) return email.split('@').first;
-    return 'Traveller'; // phone-only users have no name/email
+    return 'Wayora'; // phone-only users have no name/email
   }
 
   /// Email if the user has one, otherwise the phone number.
@@ -315,7 +315,7 @@ class AuthController extends GetxController {
     Get.snackbar(
       title,
       msg,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       margin: const EdgeInsets.all(16),
       borderRadius: 14,
       backgroundColor: ok ? const Color(0xFF2ECC71) : const Color(0xFFE74C3C),

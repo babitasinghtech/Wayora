@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/appcolor.dart';
+import 'package:login_learn_new_app/explore/explore_screen.dart';
+import 'package:login_learn_new_app/profile/profileScreen.dart';
+import 'package:login_learn_new_app/saved/saved_screen.dart';
 
 import '../auth/auth_controller.dart';
 
@@ -198,8 +201,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final HomeController _h = Get.put(HomeController());
-  final AuthController _auth = Get.find<AuthController>();
+  final HomeController h = Get.put(HomeController());
+  final AuthController auth = Get.find<AuthController>();
   final TextEditingController _search = TextEditingController();
 
   @override
@@ -228,34 +231,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _confirmLogout() {
-    Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        icon: const Icon(
-          Icons.logout_rounded,
-          color: Colors.redAccent,
-          size: 32,
-        ),
-        title: const Text('Logout?'),
-        content: const Text(
-          'You will need to sign in again to see your trips.',
-        ),
-        actions: [
-          TextButton(onPressed: Get.back, child: const Text('Cancel')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
-            onPressed: () {
-              Get.back();
-              _auth.logout();
-            },
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _open(Destination d, String tag) {
     Get.to(() => DestinationDetail(destination: d, heroTag: tag));
   }
@@ -267,12 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Scaffold(
           body: IndexedStack(
             index: h.tab,
-            children: [
-              _homeTab(h),
-              _exploreTab(h),
-              _savedTab(h),
-              _profileTab(h),
-            ],
+            children: [_homeTab(h), exploreTab(h), savedTab(h), profileTab(h)],
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: h.tab,
@@ -867,468 +837,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  Widget _exploreTab(HomeController h) {
-    return SafeArea(
-      bottom: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 18, 20, 4),
-            child: Text(
-              'Explore',
-              style: TextStyle(
-                color: AppColor.kInk,
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              '${_destinations.length} places picked for you',
-              style: const TextStyle(color: Colors.black54),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.78,
-              ),
-              itemCount: _destinations.length,
-              itemBuilder: (context, i) {
-                final d = _destinations[i];
-                final tag = 'grid-${d.name}';
-                return GestureDetector(
-                  onTap: () => _open(d, tag),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Hero(tag: tag, child: _NetImg(d.image)),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              stops: const [0.5, 1],
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withValues(alpha: 0.8),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: _HeartButton(
-                            saved: h.isSaved(d),
-                            onTap: () => h.toggleSave(d),
-                            size: 34,
-                          ),
-                        ),
-                        Positioned(
-                          left: 12,
-                          right: 12,
-                          bottom: 12,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                d.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 15,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    size: 15,
-                                    color: Color(0xFFFFC857),
-                                  ),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    '${d.rating}  •  ${d.country}',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _savedTab(HomeController h) {
-    final list = h.savedList;
-    return SafeArea(
-      bottom: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 18, 20, 14),
-            child: Text(
-              'Saved places',
-              style: TextStyle(
-                color: AppColor.kInk,
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          Expanded(
-            child: list.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(26),
-                            decoration: BoxDecoration(
-                              color: AppColor.kPrimary.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.favorite_border_rounded,
-                              size: 52,
-                              color: AppColor.kPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Nothing saved yet',
-                            style: TextStyle(
-                              color: AppColor.kInk,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Tap the heart on any destination to keep it here for later.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                          const SizedBox(height: 20),
-                          FilledButton(
-                            onPressed: () => h.setTab(1),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppColor.kPrimary,
-                            ),
-                            child: const Text('Explore places'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                    itemCount: list.length,
-                    itemBuilder: (context, i) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _listTile(h, list[i], 'saved'),
-                    ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _profileTab(HomeController h) {
-    return GetBuilder<AuthController>(
-      builder: (a) {
-        final u = a.user;
-        return ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Container(
-              padding: EdgeInsets.fromLTRB(
-                24,
-                MediaQuery.of(context).padding.top + 16,
-                24,
-                70,
-              ),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColor.kDark, AppColor.kPrimary],
-                ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(36),
-                ),
-              ),
-              child: Column(
-                children: [
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Profile',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  _Avatar(initials: a.initials, radius: 46, ring: Colors.white),
-                  const SizedBox(height: 14),
-                  Text(
-                    a.displayName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    a.contact,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.85),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // stats card overlapping the header
-            Transform.translate(
-              offset: const Offset(0, -38),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: _softShadow,
-                  ),
-                  child: Row(
-                    children: [
-                      _stat('12', 'Trips'),
-                      _divider(),
-                      _stat('${h.saved.length}', 'Saved'),
-                      _divider(),
-                      _stat('8', 'Reviews'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  _menuTile(
-                    Icons.person_outline_rounded,
-                    'Edit profile',
-                    () => _soon('Edit profile'),
-                  ),
-                  _menuTile(
-                    Icons.credit_card_rounded,
-                    'Payment methods',
-                    () => _soon('Payments'),
-                  ),
-                  _menuTile(
-                    Icons.notifications_none_rounded,
-                    'Notifications',
-                    () => _soon('Notifications'),
-                  ),
-                  _menuTile(
-                    Icons.shield_outlined,
-                    'Privacy & security',
-                    () => _soon('Privacy'),
-                  ),
-                  _menuTile(
-                    Icons.help_outline_rounded,
-                    'Help center',
-                    () => _soon('Help'),
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: _softShadow,
-                    ),
-                    child: Column(
-                      children: [
-                        (u?.email ?? '').isNotEmpty
-                            ? _infoRow(
-                                Icons.verified_outlined,
-                                'Email verified',
-                                (u?.emailVerified ?? false) ? 'Yes' : 'No',
-                              )
-                            : _infoRow(
-                                Icons.phone_android_rounded,
-                                'Mobile number',
-                                u?.phoneNumber ?? '-',
-                              ),
-                        const Divider(height: 22),
-                        _infoRow(
-                          Icons.event_available_outlined,
-                          'Member since',
-                          _fmtDate(u?.metadata.creationTime),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 22),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 54,
-                    child: ElevatedButton.icon(
-                      onPressed: _confirmLogout,
-                      icon: const Icon(Icons.logout_rounded),
-                      label: const Text(
-                        'Logout',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Wanderly v1.0.0',
-                    style: TextStyle(color: Colors.black38, fontSize: 12),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _stat(String value, String label) => Expanded(
-    child: Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: AppColor.kInk,
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.black54, fontSize: 13),
-        ),
-      ],
-    ),
-  );
-
-  Widget _divider() => Container(width: 1, height: 34, color: Colors.black12);
-
-  Widget _menuTile(IconData icon, String title, VoidCallback onTap) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: _softShadow,
-      ),
-      child: ListTile(
-        onTap: onTap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        leading: Container(
-          padding: const EdgeInsets.all(9),
-          decoration: BoxDecoration(
-            color: AppColor.kPrimary.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: AppColor.kPrimary, size: 22),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        trailing: const Icon(
-          Icons.chevron_right_rounded,
-          color: Colors.black38,
-        ),
-      ),
-    );
-  }
-
-  Widget _infoRow(IconData icon, String label, String value) => Row(
-    children: [
-      Icon(icon, color: AppColor.kPrimary, size: 22),
-      const SizedBox(width: 12),
-      Expanded(
-        child: Text(label, style: const TextStyle(color: Colors.black54)),
-      ),
-      Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
-    ],
-  );
-
-  String _fmtDate(DateTime? d) {
-    if (d == null) return '-';
-    const m = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final l = d.toLocal();
-    return '${l.day} ${m[l.month - 1]} ${l.year}';
-  }
 }
 
 class DestinationDetail extends StatelessWidget {
@@ -1586,35 +1094,6 @@ final List<BoxShadow> _softShadow = [
   ),
 ];
 
-class _NetImg extends StatelessWidget {
-  const _NetImg(this.url);
-  final String url;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-      loadingBuilder: (context, child, progress) =>
-          progress == null ? child : Container(color: const Color(0xFFE3EEEE)),
-      errorBuilder: (context, error, stack) => Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColor.kDark, AppColor.kPrimary],
-          ),
-        ),
-        child: const Center(
-          child: Icon(Icons.landscape_rounded, color: Colors.white54, size: 40),
-        ),
-      ),
-    );
-  }
-}
-
 class _Avatar extends StatelessWidget {
   const _Avatar({required this.initials, required this.radius, this.ring});
   final String initials;
@@ -1644,6 +1123,35 @@ class _Avatar extends StatelessWidget {
             fontSize: radius * 0.75,
             fontWeight: FontWeight.w800,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NetImg extends StatelessWidget {
+  const _NetImg(this.url);
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      loadingBuilder: (context, child, progress) =>
+          progress == null ? child : Container(color: const Color(0xFFE3EEEE)),
+      errorBuilder: (context, error, stack) => Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColor.kDark, AppColor.kPrimary],
+          ),
+        ),
+        child: const Center(
+          child: Icon(Icons.landscape_rounded, color: Colors.white54, size: 40),
         ),
       ),
     );

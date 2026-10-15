@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/appcolor.dart';
-
 import 'auth_controller.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -136,14 +134,18 @@ class _OtpScreenState extends State<OtpScreen> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColor.kPrimary.withValues(alpha: 0.5),
+                                  color: AppColor.kPrimary.withValues(
+                                    alpha: 0.5,
+                                  ),
                                   blurRadius: 24,
                                   offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
                             child: Icon(
-                              isPhone ? Icons.sms_rounded : Icons.mark_email_read_rounded,
+                              isPhone
+                                  ? Icons.sms_rounded
+                                  : Icons.mark_email_read_rounded,
                               color: Colors.white,
                               size: 38,
                             ),
@@ -200,12 +202,16 @@ class _OtpScreenState extends State<OtpScreen> {
                                         _seconds > 0
                                             ? 'Resend code in 00:${_seconds.toString().padLeft(2, '0')}'
                                             : "Didn't get the code?",
-                                        style: const TextStyle(color: Colors.white70),
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
                                       ),
                                       if (_seconds <= 0)
                                         GetBuilder<AuthController>(
                                           builder: (c) => TextButton(
-                                            onPressed: c.isLoading ? null : _resend,
+                                            onPressed: c.isLoading
+                                                ? null
+                                                : _resend,
                                             child: const Text(
                                               'Resend OTP',
                                               style: TextStyle(
@@ -220,8 +226,12 @@ class _OtpScreenState extends State<OtpScreen> {
                                   TextButton(
                                     onPressed: Get.back,
                                     child: Text(
-                                      isPhone ? 'Change mobile number' : 'Change email',
-                                      style: const TextStyle(color: Colors.white70),
+                                      isPhone
+                                          ? 'Change mobile number'
+                                          : 'Change email',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -262,8 +272,10 @@ class _OtpScreenState extends State<OtpScreen> {
           Row(
             children: List.generate(_length, (i) {
               final filled = i < text.length;
-              final active = _focus.hasFocus &&
-                  (i == text.length || (text.length == _length && i == _length - 1));
+              final active =
+                  _focus.hasFocus &&
+                  (i == text.length ||
+                      (text.length == _length && i == _length - 1));
               return Expanded(
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
@@ -350,13 +362,18 @@ class _OtpScreenState extends State<OtpScreen> {
           backgroundColor: Colors.transparent,
           disabledBackgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         child: loading
             ? const SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2.6, color: Colors.white),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.6,
+                  color: Colors.white,
+                ),
               )
             : Text(
                 label,
