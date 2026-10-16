@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:login_learn_new_app/appcolor.dart';
-import 'package:login_learn_new_app/explore/explore_screen.dart';
-import 'package:login_learn_new_app/profile/profileScreen.dart';
-import 'package:login_learn_new_app/saved/saved_screen.dart';
+import 'package:login_learn_new_app/core/constants/app_color.dart';
+import 'package:login_learn_new_app/views/explore/explore_screen.dart';
+import 'package:login_learn_new_app/views/profile/profile_screen.dart';
+import 'package:login_learn_new_app/views/saved/saved_screen.dart';
 
-import '../auth/auth_controller.dart';
+import 'package:login_learn_new_app/controllers/auth_controller.dart';
+import 'package:login_learn_new_app/views/chat/chat_list_screen.dart';
+import 'package:login_learn_new_app/views/posts/community_feed.dart';
 
 class Destination {
   const Destination({
@@ -148,12 +150,18 @@ String _money(int v) =>
 // ============================================================
 class HomeController extends GetxController {
   int tab = 0;
+  int exploreView = 0; // 0 = Community posts, 1 = Places
   String category = 'All';
   String query = '';
   final Set<String> saved = {};
 
   void setTab(int i) {
     tab = i;
+    update();
+  }
+
+  void setExploreView(int v) {
+    exploreView = v;
     update();
   }
 
@@ -201,9 +209,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final HomeController h = Get.put(HomeController());
-  final AuthController auth = Get.find<AuthController>();
   final TextEditingController _search = TextEditingController();
+  // Register the controller BEFORE GetBuilder<HomeController> is built.
+  final HomeController _hc = Get.put(HomeController());
 
   @override
   void dispose() {
@@ -242,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Scaffold(
           body: IndexedStack(
             index: h.tab,
-            children: [_homeTab(h), exploreTab(h), savedTab(h), profileTab(h)],
+            children: [homeTab(h), exploreTab(h), savedTab(h), profileTab(h)],
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: h.tab,
@@ -294,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _homeTab(HomeController h) {
+  Widget homeTab(HomeController h) {
     final featured = h.filtered;
     return SafeArea(
       bottom: false,
@@ -369,38 +377,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 5),
+                  const SizedBox(width: 10),
                   GestureDetector(
-                    onTap: () => _soon('Chat'),
+                    onTap: () => Get.to(() => const ChatListScreen()),
                     child: Container(
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColor.kPrimary,
                         shape: BoxShape.circle,
-                        boxShadow: _softShadow,
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          const Icon(Icons.chat, color: AppColor.kInk),
-                          Positioned(
-                            top: 12,
-                            right: 13,
-                            child: Container(
-                              width: 9,
-                              height: 9,
-                              decoration: BoxDecoration(
-                                color: AppColor.kAccent,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 1.5,
-                                ),
-                              ),
-                            ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColor.kPrimary.withValues(alpha: 0.4),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
                           ),
                         ],
+                      ),
+                      child: const Icon(
+                        Icons.chat_bubble_rounded,
+                        color: Colors.white,
+                        size: 22,
                       ),
                     ),
                   ),
@@ -1129,6 +1126,35 @@ final List<BoxShadow> _softShadow = [
   ),
 ];
 
+class _NetImg extends StatelessWidget {
+  const _NetImg(this.url);
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      loadingBuilder: (context, child, progress) =>
+          progress == null ? child : Container(color: const Color(0xFFE3EEEE)),
+      errorBuilder: (context, error, stack) => Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColor.kDark, AppColor.kPrimary],
+          ),
+        ),
+        child: const Center(
+          child: Icon(Icons.landscape_rounded, color: Colors.white54, size: 40),
+        ),
+      ),
+    );
+  }
+}
+
 class _Avatar extends StatelessWidget {
   const _Avatar({required this.initials, required this.radius, this.ring});
   final String initials;
@@ -1158,35 +1184,6 @@ class _Avatar extends StatelessWidget {
             fontSize: radius * 0.75,
             fontWeight: FontWeight.w800,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NetImg extends StatelessWidget {
-  const _NetImg(this.url);
-  final String url;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-      loadingBuilder: (context, child, progress) =>
-          progress == null ? child : Container(color: const Color(0xFFE3EEEE)),
-      errorBuilder: (context, error, stack) => Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColor.kDark, AppColor.kPrimary],
-          ),
-        ),
-        child: const Center(
-          child: Icon(Icons.landscape_rounded, color: Colors.white54, size: 40),
         ),
       ),
     );

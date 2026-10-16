@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:login_learn_new_app/appcolor.dart';
-import 'package:login_learn_new_app/home/home_screen.dart';
+import 'package:login_learn_new_app/core/constants/app_color.dart';
+import 'package:login_learn_new_app/views/home/home_screen.dart';
+import 'package:login_learn_new_app/views/posts/community_feed.dart';
 
 String _img(String id) =>
     'https://images.unsplash.com/photo-$id?auto=format&fit=crop&w=900&q=80';
@@ -97,7 +98,13 @@ final List<Destination> _destinations = [
         'Walk among the tallest trees on Earth. Misty trails, fresh air and complete silence.',
   ),
 ];
-
+final List<BoxShadow> _softShadow = [
+  BoxShadow(
+    color: Colors.black.withValues(alpha: 0.06),
+    blurRadius: 14,
+    offset: const Offset(0, 6),
+  ),
+];
 Widget exploreTab(HomeController h) {
   return SafeArea(
     bottom: false,
@@ -105,7 +112,7 @@ Widget exploreTab(HomeController h) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.fromLTRB(20, 18, 20, 4),
+          padding: EdgeInsets.fromLTRB(20, 18, 20, 12),
           child: Text(
             'Explore',
             style: TextStyle(
@@ -115,6 +122,78 @@ Widget exploreTab(HomeController h) {
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: _softShadow,
+            ),
+            child: Row(
+              children: [
+                _exploreToggle(h, 0, 'Community', Icons.dynamic_feed_rounded),
+                _exploreToggle(h, 1, 'Places', Icons.landscape_rounded),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: h.exploreView == 0 ? const CommunityFeed() : _placesTab(h),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _exploreToggle(
+  HomeController h,
+  int index,
+  String label,
+  IconData icon,
+) {
+  final selected = h.exploreView == index;
+  return Expanded(
+    child: GestureDetector(
+      onTap: () => h.setExploreView(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        padding: const EdgeInsets.symmetric(vertical: 11),
+        decoration: BoxDecoration(
+          color: selected ? AppColor.kPrimary : Colors.transparent,
+          borderRadius: BorderRadius.circular(13),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: selected ? Colors.white : Colors.black54,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: selected ? Colors.white : Colors.black54,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _placesTab(HomeController h) {
+  return SafeArea(
+    bottom: false,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 4),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
@@ -222,35 +301,6 @@ void _open(Destination d, String tag) {
   Get.to(() => DestinationDetail(destination: d, heroTag: tag));
 }
 
-class _NetImg extends StatelessWidget {
-  const _NetImg(this.url);
-  final String url;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-      loadingBuilder: (context, child, progress) =>
-          progress == null ? child : Container(color: const Color(0xFFE3EEEE)),
-      errorBuilder: (context, error, stack) => Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColor.kDark, AppColor.kPrimary],
-          ),
-        ),
-        child: const Center(
-          child: Icon(Icons.landscape_rounded, color: Colors.white54, size: 40),
-        ),
-      ),
-    );
-  }
-}
-
 class _HeartButton extends StatelessWidget {
   const _HeartButton({
     required this.saved,
@@ -276,6 +326,35 @@ class _HeartButton extends StatelessWidget {
           saved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
           color: saved ? Colors.redAccent : AppColor.kInk,
           size: size * 0.52,
+        ),
+      ),
+    );
+  }
+}
+
+class _NetImg extends StatelessWidget {
+  const _NetImg(this.url);
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      loadingBuilder: (context, child, progress) =>
+          progress == null ? child : Container(color: const Color(0xFFE3EEEE)),
+      errorBuilder: (context, error, stack) => Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColor.kDark, AppColor.kPrimary],
+          ),
+        ),
+        child: const Center(
+          child: Icon(Icons.landscape_rounded, color: Colors.white54, size: 40),
         ),
       ),
     );

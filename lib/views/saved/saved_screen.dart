@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:login_learn_new_app/appcolor.dart';
-import 'package:login_learn_new_app/home/home_screen.dart';
+import 'package:login_learn_new_app/core/constants/app_color.dart';
+import 'package:login_learn_new_app/views/home/home_screen.dart';
 
+final List<BoxShadow> _softShadow = [
+  BoxShadow(
+    color: Colors.black.withValues(alpha: 0.06),
+    blurRadius: 14,
+    offset: const Offset(0, 6),
+  ),
+];
 Widget savedTab(HomeController h) {
   final list = h.savedList;
   return SafeArea(
@@ -189,14 +196,6 @@ Widget _listTile(HomeController h, Destination d, String prefix) {
     ),
   );
 }
-
-final List<BoxShadow> _softShadow = [
-  BoxShadow(
-    color: Colors.black.withValues(alpha: 0.06),
-    blurRadius: 14,
-    offset: const Offset(0, 6),
-  ),
-];
 
 class _NetImg extends StatelessWidget {
   const _NetImg(this.url);

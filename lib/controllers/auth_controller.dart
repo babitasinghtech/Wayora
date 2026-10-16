@@ -3,8 +3,8 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import 'otp_screen.dart';
+import 'package:login_learn_new_app/services/db.dart';
+import 'package:login_learn_new_app/views/auth/otp_screen.dart';
 
 enum OtpMethod { phone, email }
 
@@ -20,7 +20,7 @@ class AuthController extends GetxController {
 
   // ---------- OTP state ----------
   OtpMethod otpMethod = OtpMethod.phone;
-  String otpTarget = '';
+  String otpTarget = ''; // phone number (+91...) or email being verified
   bool isVerifying = false;
   String? _verificationId;
   int? _resendToken;
@@ -30,7 +30,7 @@ class AuthController extends GetxController {
     if (name != null && name.trim().isNotEmpty) return name.trim();
     final email = user?.email;
     if (email != null && email.isNotEmpty) return email.split('@').first;
-    return 'Wayora'; // phone-only users have no name/email
+    return 'Wayora';
   }
 
   /// Email if the user has one, otherwise the phone number.
@@ -50,10 +50,21 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     user = _auth.currentUser;
+    _syncProfile(user);
     _sub = _auth.authStateChanges().listen((u) {
       user = u;
       update();
+      _syncProfile(u); // keep users/{uid} up to date (chat + calls need it)
     });
+  }
+
+  Future<void> _syncProfile(User? u) async {
+    if (u == null) return;
+    try {
+      await Db.saveProfile(u);
+    } catch (e) {
+      debugPrint('profile sync failed: $e');
+    }
   }
 
   @override
@@ -102,6 +113,7 @@ class AuthController extends GetxController {
       await cred.user?.reload();
       user = _auth.currentUser;
       update();
+      _syncProfile(user); // save the real name
       Get.until((route) => route.isFirst);
       _toast('Account created', 'Welcome, $name!', ok: true);
     } on FirebaseAuthException catch (e) {
@@ -315,7 +327,7 @@ class AuthController extends GetxController {
     Get.snackbar(
       title,
       msg,
-      snackPosition: SnackPosition.TOP,
+      snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(16),
       borderRadius: 14,
       backgroundColor: ok ? const Color(0xFF2ECC71) : const Color(0xFFE74C3C),

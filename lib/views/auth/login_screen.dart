@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:login_learn_new_app/appcolor.dart';
+import 'package:login_learn_new_app/core/constants/app_color.dart';
 
-import 'auth_controller.dart';
-import 'signup_screen.dart';
+import 'package:login_learn_new_app/controllers/auth_controller.dart';
+import 'package:login_learn_new_app/views/auth/signup_screen.dart';
 
 enum _LoginTab { email, mobile }
 

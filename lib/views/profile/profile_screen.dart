@@ -4,11 +4,10 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
-import 'package:login_learn_new_app/appcolor.dart';
-import 'package:login_learn_new_app/auth/auth_controller.dart';
-import 'package:login_learn_new_app/home/home_screen.dart';
+import 'package:login_learn_new_app/core/constants/app_color.dart';
+import 'package:login_learn_new_app/controllers/auth_controller.dart';
+import 'package:login_learn_new_app/views/home/home_screen.dart';
 
-final HomeController h = Get.put(HomeController());
 final AuthController auth = Get.find<AuthController>();
 Widget profileTab(HomeController h) {
   return GetBuilder<AuthController>(
@@ -183,89 +182,6 @@ Widget profileTab(HomeController h) {
   );
 }
 
-Widget _stat(String value, String label) => Expanded(
-  child: Column(
-    children: [
-      Text(
-        value,
-        style: const TextStyle(
-          color: AppColor.kInk,
-          fontSize: 22,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-      const SizedBox(height: 2),
-      Text(label, style: const TextStyle(color: Colors.black54, fontSize: 13)),
-    ],
-  ),
-);
-
-Widget _divider() => Container(width: 1, height: 34, color: Colors.black12);
-
-Widget _menuTile(IconData icon, String title, VoidCallback onTap) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
-      boxShadow: _softShadow,
-    ),
-    child: ListTile(
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      leading: Container(
-        padding: const EdgeInsets.all(9),
-        decoration: BoxDecoration(
-          color: AppColor.kPrimary.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: AppColor.kPrimary, size: 22),
-      ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
-    ),
-  );
-}
-
-Widget _infoRow(IconData icon, String label, String value) => Row(
-  children: [
-    Icon(icon, color: AppColor.kPrimary, size: 22),
-    const SizedBox(width: 12),
-    Expanded(
-      child: Text(label, style: const TextStyle(color: Colors.black54)),
-    ),
-    Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
-  ],
-);
-
-String _fmtDate(DateTime? d) {
-  if (d == null) return '-';
-  const m = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  final l = d.toLocal();
-  return '${l.day} ${m[l.month - 1]} ${l.year}';
-}
-
-final List<BoxShadow> _softShadow = [
-  BoxShadow(
-    color: Colors.black.withValues(alpha: 0.06),
-    blurRadius: 14,
-    offset: const Offset(0, 6),
-  ),
-];
-
 class _Avatar extends StatelessWidget {
   const _Avatar({required this.initials, required this.radius, this.ring});
   final String initials;
@@ -305,7 +221,7 @@ void _soon(String what) {
   Get.snackbar(
     what,
     'This feature is coming soon.',
-    snackPosition: SnackPosition.BOTTOM,
+    snackPosition: SnackPosition.TOP,
     margin: const EdgeInsets.all(16),
     borderRadius: 14,
     backgroundColor: AppColor.kDark,
@@ -334,3 +250,85 @@ void _confirmLogout() {
     ),
   );
 }
+
+final List<BoxShadow> _softShadow = [
+  BoxShadow(
+    color: Colors.black.withValues(alpha: 0.06),
+    blurRadius: 14,
+    offset: const Offset(0, 6),
+  ),
+];
+Widget _infoRow(IconData icon, String label, String value) => Row(
+  children: [
+    Icon(icon, color: AppColor.kPrimary, size: 22),
+    const SizedBox(width: 12),
+    Expanded(
+      child: Text(label, style: const TextStyle(color: Colors.black54)),
+    ),
+    Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+  ],
+);
+
+String _fmtDate(DateTime? d) {
+  if (d == null) return '-';
+  const m = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  final l = d.toLocal();
+  return '${l.day} ${m[l.month - 1]} ${l.year}';
+}
+
+Widget _divider() => Container(width: 1, height: 34, color: Colors.black12);
+
+Widget _menuTile(IconData icon, String title, VoidCallback onTap) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      boxShadow: _softShadow,
+    ),
+    child: ListTile(
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      leading: Container(
+        padding: const EdgeInsets.all(9),
+        decoration: BoxDecoration(
+          color: AppColor.kPrimary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: AppColor.kPrimary, size: 22),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
+    ),
+  );
+}
+
+Widget _stat(String value, String label) => Expanded(
+  child: Column(
+    children: [
+      Text(
+        value,
+        style: const TextStyle(
+          color: AppColor.kInk,
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      const SizedBox(height: 2),
+      Text(label, style: const TextStyle(color: Colors.black54, fontSize: 13)),
+    ],
+  ),
+);
