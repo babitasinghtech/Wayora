@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
+import 'package:login_learn_new_app/models/connected_user.dart';
 import 'package:login_learn_new_app/views/explore/explore_screen.dart';
 import 'package:login_learn_new_app/views/post/post_screen.dart';
 import 'package:login_learn_new_app/views/profile/profile_screen.dart';
@@ -8,6 +9,9 @@ import 'package:login_learn_new_app/views/saved/saved_screen.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
 import 'package:login_learn_new_app/views/chat/chat_list_screen.dart';
 import 'package:login_learn_new_app/views/posts/community_feed.dart';
+import 'package:login_learn_new_app/views/stories/story_upload_screen.dart';
+import 'package:login_learn_new_app/views/stories/story_viewer_screen.dart';
+import 'package:login_learn_new_app/models/connected_user.dart';
 
 class Destination {
   const Destination({
@@ -148,12 +152,22 @@ String _money(int v) =>
 // ============================================================
 // CONTROLLER (GetX)
 // ============================================================
+
 class HomeController extends GetxController {
   int tab = 0;
-  int exploreView = 0; // 0 = Community posts, 1 = Places
+  int exploreView = 0;
   String category = 'All';
   String query = '';
+
   final Set<String> saved = {};
+
+  // Connected users must be inside HomeController
+  List<ConnectedUser> connectedUsers = [];
+
+  void setConnectedUsers(List<ConnectedUser> users) {
+    connectedUsers = users;
+    update();
+  }
 
   void setTab(int i) {
     tab = i;
@@ -178,7 +192,9 @@ class HomeController extends GetxController {
   bool isSaved(Destination d) => saved.contains(d.name);
 
   void toggleSave(Destination d) {
-    if (!saved.remove(d.name)) saved.add(d.name);
+    if (!saved.remove(d.name)) {
+      saved.add(d.name);
+    }
     update();
   }
 
@@ -188,6 +204,7 @@ class HomeController extends GetxController {
         query.isEmpty ||
         d.name.toLowerCase().contains(query) ||
         d.country.toLowerCase().contains(query);
+
     return okCat && okQuery;
   }).toList();
 
@@ -210,7 +227,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _search = TextEditingController();
-  // Register the controller BEFORE GetBuilder<HomeController> is built.
+
   final HomeController _hc = Get.put(HomeController());
 
   @override
@@ -418,7 +435,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          // Stories section
+
           Padding(
             padding: const EdgeInsets.only(top: 20),
             child: SizedBox(
@@ -427,42 +444,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 children: [
+                  // Your Story
                   _storyItem(
                     name: 'Your Story',
                     imageUrl: '',
                     isOwnStory: true,
                     hasStory: false,
                     onTap: () {
-                      Get.snackbar('Add Story', 'Open story upload screen');
+                      Get.to(() => const StoryUploadScreen());
                     },
                   ),
-                  _storyItem(
-                    name: 'Priya',
-                    imageUrl: '',
-                    isOwnStory: false,
-                    hasStory: true,
-                    onTap: () {
-                      Get.snackbar('Story', 'Open Priya story');
-                    },
-                  ),
-                  _storyItem(
-                    name: 'Rahul',
-                    imageUrl: '',
-                    isOwnStory: false,
-                    hasStory: true,
-                    onTap: () {
-                      Get.snackbar('Story', 'Open Rahul story');
-                    },
-                  ),
-                  _storyItem(
-                    name: 'Ananya',
-                    imageUrl: '',
-                    isOwnStory: false,
-                    hasStory: true,
-                    onTap: () {
-                      Get.snackbar('Story', 'Open Ananya story');
-                    },
-                  ),
+
+                  // Real connected users
+                  ...h.connectedUsers.map((connectedUser) {
+                    return _storyItem(
+                      name: connectedUser.name,
+                      imageUrl: connectedUser.profileImage,
+                      isOwnStory: false,
+                      hasStory: true,
+                      onTap: () {
+                        Get.to(
+                          () => StoryViewerScreen(
+                            userId: connectedUser.id,
+                            userName: connectedUser.name,
+                          ),
+                        );
+                      },
+                    );
+                  }),
                 ],
               ),
             ),
