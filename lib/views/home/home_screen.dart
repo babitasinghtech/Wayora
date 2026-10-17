@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/views/explore/explore_screen.dart';
+import 'package:login_learn_new_app/views/post/post_screen.dart';
 import 'package:login_learn_new_app/views/profile/profile_screen.dart';
 import 'package:login_learn_new_app/views/saved/saved_screen.dart';
-
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
 import 'package:login_learn_new_app/views/chat/chat_list_screen.dart';
 import 'package:login_learn_new_app/views/posts/community_feed.dart';
@@ -250,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Scaffold(
           body: IndexedStack(
             index: h.tab,
-            children: [homeTab(h), exploreTab(h), savedTab(h), profileTab(h)],
+            children: [homeTab(h), exploreTab(h), PostTab(), profileTab(h)],
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: h.tab,
@@ -279,13 +279,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Badge(
                   isLabelVisible: h.saved.isNotEmpty,
                   label: Text('${h.saved.length}'),
-                  child: const Icon(Icons.favorite_border_rounded),
+                  child: const Icon(Icons.post_add_rounded),
                 ),
                 selectedIcon: const Icon(
-                  Icons.favorite_rounded,
+                  Icons.post_add,
                   color: AppColor.kPrimary,
                 ),
-                label: 'Saved',
+                label: 'Post',
               ),
               const NavigationDestination(
                 icon: Icon(Icons.person_outline_rounded),
@@ -418,7 +418,55 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
+          // Stories section
+          Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: SizedBox(
+              height: 112,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  _storyItem(
+                    name: 'Your Story',
+                    imageUrl: '',
+                    isOwnStory: true,
+                    hasStory: false,
+                    onTap: () {
+                      Get.snackbar('Add Story', 'Open story upload screen');
+                    },
+                  ),
+                  _storyItem(
+                    name: 'Priya',
+                    imageUrl: '',
+                    isOwnStory: false,
+                    hasStory: true,
+                    onTap: () {
+                      Get.snackbar('Story', 'Open Priya story');
+                    },
+                  ),
+                  _storyItem(
+                    name: 'Rahul',
+                    imageUrl: '',
+                    isOwnStory: false,
+                    hasStory: true,
+                    onTap: () {
+                      Get.snackbar('Story', 'Open Rahul story');
+                    },
+                  ),
+                  _storyItem(
+                    name: 'Ananya',
+                    imageUrl: '',
+                    isOwnStory: false,
+                    hasStory: true,
+                    onTap: () {
+                      Get.snackbar('Story', 'Open Ananya story');
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
           // search
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
@@ -616,6 +664,86 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _storyItem({
+    required String name,
+    required String imageUrl,
+    required bool isOwnStory,
+    required bool hasStory,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 76,
+        margin: const EdgeInsets.only(right: 12),
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: hasStory
+                        ? const LinearGradient(
+                            colors: [
+                              Color(0xFFFFB000),
+                              Color(0xFFE1306C),
+                              Color(0xFF833AB4),
+                            ],
+                          )
+                        : null,
+                    border: !hasStory
+                        ? Border.all(color: Colors.grey.shade300)
+                        : null,
+                  ),
+                  child: CircleAvatar(
+                    radius: 29,
+                    backgroundColor: const Color(0xFFE8F2F1),
+                    backgroundImage: imageUrl.isNotEmpty
+                        ? NetworkImage(imageUrl)
+                        : null,
+                    child: imageUrl.isEmpty
+                        ? const Icon(
+                            Icons.person_rounded,
+                            size: 30,
+                            color: AppColor.kPrimary,
+                          )
+                        : null,
+                  ),
+                ),
+                if (isOwnStory)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColor.kPrimary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 19,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 7),
+            Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -114,7 +114,7 @@ Widget exploreTab(HomeController h) {
         const Padding(
           padding: EdgeInsets.fromLTRB(20, 18, 20, 12),
           child: Text(
-            'Explore',
+            'Explore Places',
             style: TextStyle(
               color: AppColor.kInk,
               fontSize: 30,
@@ -122,26 +122,7 @@ Widget exploreTab(HomeController h) {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: _softShadow,
-            ),
-            child: Row(
-              children: [
-                _exploreToggle(h, 0, 'Community', Icons.dynamic_feed_rounded),
-                _exploreToggle(h, 1, 'Places', Icons.landscape_rounded),
-              ],
-            ),
-          ),
-        ),
-        Expanded(
-          child: h.exploreView == 0 ? const CommunityFeed() : _placesTab(h),
-        ),
+        Expanded(child: _placesTab(h)),
       ],
     ),
   );

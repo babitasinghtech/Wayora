@@ -18,15 +18,29 @@ Widget savedTab(HomeController h) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.fromLTRB(20, 18, 20, 14),
-          child: Text(
-            'Saved places',
-            style: TextStyle(
-              color: AppColor.kInk,
-              fontSize: 30,
-              fontWeight: FontWeight.w800,
-            ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => Get.back(),
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  color: AppColor.kInk,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: 4),
+              SizedBox(width: 10),
+              Text(
+                'Saved places',
+                style: TextStyle(
+                  color: AppColor.kInk,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(

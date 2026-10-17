@@ -7,6 +7,7 @@ import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
 import 'package:login_learn_new_app/views/home/home_screen.dart';
+import 'package:login_learn_new_app/views/saved/saved_screen.dart';
 
 final AuthController auth = Get.find<AuthController>();
 Widget profileTab(HomeController h) {
@@ -92,6 +93,16 @@ Widget profileTab(HomeController h) {
                   Icons.person_outline_rounded,
                   'Edit profile',
                   () => _soon('Edit profile'),
+                ),
+                _menuTile(
+                  Icons.favorite_border,
+                  'Saved',
+                  () => Get.to(
+                    () => Scaffold(
+                      backgroundColor: Colors.white,
+                      body: savedTab(h),
+                    ),
+                  ),
                 ),
                 _menuTile(
                   Icons.credit_card_rounded,

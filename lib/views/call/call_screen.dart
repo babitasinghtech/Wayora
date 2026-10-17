@@ -10,10 +10,6 @@ import 'package:login_learn_new_app/widgets/common.dart';
 import 'package:login_learn_new_app/services/db.dart';
 import 'package:login_learn_new_app/controllers/call_controller.dart';
 
-/// One screen for both sides of a WebRTC call.
-///  - caller : isCaller = true  (creates the call doc + offer)
-///  - callee : isCaller = false (callId given, reads the offer, sends answer)
-/// Signaling (offer / answer / ICE candidates) goes through Firestore.
 class CallScreen extends StatefulWidget {
   const CallScreen({
     super.key,
