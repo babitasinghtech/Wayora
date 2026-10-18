@@ -15,7 +15,7 @@ class Db {
     if (n != null && n.trim().isNotEmpty) return n.trim();
     final e = u.email;
     if (e != null && e.isNotEmpty) return e.split('@').first;
-    return u.phoneNumber ?? 'User';
+    return 'User'; // never expose the phone number as a public name
   }
 
   // ---------------------------------------------------------------- users
@@ -27,6 +27,18 @@ class Db {
       'phone': u.phoneNumber,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+  }
+
+  /// After a phone user sets their name, replace the old (phone-number)
+  /// author name on their existing posts.
+  static Future<void> updateMyPostsName(String name) async {
+    final snap = await _fs.collection('posts').where('uid', isEqualTo: myUid).get();
+    if (snap.docs.isEmpty) return;
+    final batch = _fs.batch();
+    for (final d in snap.docs) {
+      batch.update(d.reference, {'authorName': name});
+    }
+    await batch.commit();
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> usersStream() =>

@@ -59,7 +59,7 @@ class _OtpScreenState extends State<OtpScreen> {
       Get.snackbar(
         'Enter the code',
         'Please enter the 6-digit OTP.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(16),
         backgroundColor: const Color(0xFFE74C3C),
         colorText: Colors.white,

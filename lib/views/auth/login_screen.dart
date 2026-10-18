@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _phone = TextEditingController();
+  final _name = TextEditingController();
   final AuthController _auth = Get.find<AuthController>();
 
   _LoginTab _tab = _LoginTab.email;
@@ -34,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _email.dispose();
     _password.dispose();
     _phone.dispose();
+    _name.dispose();
     super.dispose();
   }
 
@@ -47,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_tab == _LoginTab.mobile) {
-      await _auth.sendPhoneOtp('$_dial${_phone.text.trim()}');
+      await _auth.sendPhoneOtp('$_dial${_phone.text.trim()}', name: _name.text);
     } else if (_emailOtp) {
       await _auth.sendEmailOtp(_email.text.trim());
     } else {
@@ -157,6 +159,22 @@ class _LoginScreenState extends State<LoginScreen> {
         return null;
       },
     ),
+  );
+
+  Widget _nameField() => TextFormField(
+    key: const ValueKey('name-field'),
+    controller: _name,
+    style: const TextStyle(color: Colors.white),
+    cursorColor: Colors.white,
+    textCapitalization: TextCapitalization.words,
+    textInputAction: TextInputAction.next,
+    decoration: _decoration('Full name', Icons.person_outline_rounded),
+    validator: (v) {
+      final t = (v ?? '').trim();
+      if (t.isEmpty) return 'Name is required';
+      if (t.length < 2) return 'Enter at least 2 letters';
+      return null;
+    },
   );
 
   Widget _phoneField() => Row(
@@ -352,6 +370,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                   ] else ...[
+                                    _nameField(),
+                                    const SizedBox(height: 16),
                                     _phoneField(),
                                     const Padding(
                                       padding: EdgeInsets.fromLTRB(4, 10, 4, 14),

@@ -4,6 +4,7 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:login_learn_new_app/controllers/home_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
 import 'package:login_learn_new_app/views/home/home_screen.dart';
@@ -76,7 +77,15 @@ Widget profileTab(HomeController h) {
                   children: [
                     _stat('12', 'Trips'),
                     _divider(),
-                    _stat('${h.saved.length}', 'Saved'),
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: openSaved,
+                        child: Row(
+                          children: [_stat('${h.saved.length}', 'Saved')],
+                        ),
+                      ),
+                    ),
                     _divider(),
                     _stat('8', 'Reviews'),
                   ],
@@ -94,16 +103,7 @@ Widget profileTab(HomeController h) {
                   'Edit profile',
                   () => _soon('Edit profile'),
                 ),
-                _menuTile(
-                  Icons.favorite_border,
-                  'Saved',
-                  () => Get.to(
-                    () => Scaffold(
-                      backgroundColor: Colors.white,
-                      body: savedTab(h),
-                    ),
-                  ),
-                ),
+                _menuTile(Icons.favorite_border, 'Saved', openSaved),
                 _menuTile(
                   Icons.credit_card_rounded,
                   'Payment methods',

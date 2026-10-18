@@ -75,7 +75,7 @@ void showToast(String title, String msg, {bool ok = true}) {
   Get.snackbar(
     title,
     msg,
-    snackPosition: SnackPosition.BOTTOM,
+    snackPosition: SnackPosition.TOP,
     margin: const EdgeInsets.all(16),
     borderRadius: 14,
     backgroundColor: ok ? AppColor.kPrimary : const Color(0xFFE74C3C),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:login_learn_new_app/controllers/home_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/views/home/home_screen.dart';
-import 'package:login_learn_new_app/views/posts/community_feed.dart';
+import 'package:login_learn_new_app/views/saved/saved_screen.dart';
 
 String _img(String id) =>
     'https://images.unsplash.com/photo-$id?auto=format&fit=crop&w=900&q=80';
@@ -111,15 +112,46 @@ Widget exploreTab(HomeController h) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 18, 20, 12),
-          child: Text(
-            'Explore Places',
-            style: TextStyle(
-              color: AppColor.kInk,
-              fontSize: 30,
-              fontWeight: FontWeight.w800,
-            ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Explore Places',
+                  style: TextStyle(
+                    color: AppColor.kInk,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: openSaved,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: _softShadow,
+                  ),
+                  child: Badge(
+                    isLabelVisible: h.saved.isNotEmpty,
+                    label: Text('${h.saved.length}'),
+                    child: Center(
+                      child: Icon(
+                        h.saved.isNotEmpty
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        color: Colors.redAccent,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(child: _placesTab(h)),

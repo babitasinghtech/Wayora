@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get.dart';
+import 'package:login_learn_new_app/controllers/home_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/views/home/home_screen.dart';
 
@@ -11,6 +11,17 @@ final List<BoxShadow> _softShadow = [
     offset: const Offset(0, 6),
   ),
 ];
+
+/// Opens the Saved places page (used by Profile and the Explore heart icon).
+void openSaved() {
+  Get.to(
+    () => Scaffold(
+      backgroundColor: Colors.white,
+      body: GetBuilder<HomeController>(builder: (c) => savedTab(c)),
+    ),
+  );
+}
+
 Widget savedTab(HomeController h) {
   final list = h.savedList;
   return SafeArea(
@@ -80,7 +91,10 @@ Widget savedTab(HomeController h) {
                         ),
                         const SizedBox(height: 20),
                         FilledButton(
-                          onPressed: () => h.setTab(1),
+                          onPressed: () {
+                            Get.back();
+                            h.setTab(1);
+                          },
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColor.kPrimary,
                           ),

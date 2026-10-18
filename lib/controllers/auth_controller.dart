@@ -23,6 +23,7 @@ class AuthController extends GetxController {
   String otpTarget = ''; // phone number (+91...) or email being verified
   bool isVerifying = false;
   String? _verificationId;
+  String _pendingName = ''; // name typed on the login form (phone login)
   int? _resendToken;
 
   String get displayName {
@@ -31,6 +32,67 @@ class AuthController extends GetxController {
     final email = user?.email;
     if (email != null && email.isNotEmpty) return email.split('@').first;
     return 'Wayora';
+  }
+
+  /// Phone-login users must set a name before using the app.
+  bool get needsName {
+    final u = user;
+    if (u == null) return false;
+    final hasName = (u.displayName ?? '').trim().isNotEmpty;
+    final isPhoneUser = (u.phoneNumber ?? '').isNotEmpty;
+    return isPhoneUser && !hasName && _pendingName.isEmpty;
+  }
+
+  Future<bool> saveName(String name) async {
+    final n = name.trim();
+    if (n.length < 2) {
+      _toast('Name required', 'Please enter your name (min 2 letters).', ok: false);
+      return false;
+    }
+    _setLoading(true);
+    try {
+      await _writeName(n);
+      _isLoadingOff();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _toast('Could not save name', _friendly(e), ok: false);
+    } catch (e) {
+      _toast('Error', e.toString(), ok: false);
+    }
+    _isLoadingOff();
+    return false;
+  }
+
+  Future<void> _writeName(String n) async {
+    await _auth.currentUser?.updateDisplayName(n);
+    await _auth.currentUser?.reload();
+    user = _auth.currentUser;
+    await _syncProfile(user);
+    try {
+      await Db.updateMyPostsName(n);
+    } catch (e) {
+      debugPrint('post name update failed: $e');
+    }
+  }
+
+  /// Applies the name typed on the login form once the phone sign-in succeeded.
+  /// Existing accounts that already have a name keep it.
+  Future<void> _applyPendingName() async {
+    final n = _pendingName;
+    try {
+      final hasName = (_auth.currentUser?.displayName ?? '').trim().isNotEmpty;
+      if (n.isNotEmpty && !hasName) await _writeName(n);
+    } catch (e) {
+      debugPrint('apply name failed: $e');
+    } finally {
+      _pendingName = '';
+      update(); // if it failed, needsName becomes true -> SetNameScreen fallback
+    }
+  }
+
+  void _isLoadingOff() {
+    isLoading = false;
+    update(); // rebuilds root -> moves on to Home when name is set
   }
 
   /// Email if the user has one, otherwise the phone number.
@@ -156,7 +218,8 @@ class AuthController extends GetxController {
   // =====================================================
 
   // ---------- Mobile OTP (Firebase Phone Auth) ----------
-  Future<void> sendPhoneOtp(String phone, {bool isResend = false}) async {
+  Future<void> sendPhoneOtp(String phone, {bool isResend = false, String? name}) async {
+    if (name != null) _pendingName = name.trim();
     _setLoading(true);
     otpMethod = OtpMethod.phone;
     otpTarget = phone;
@@ -169,6 +232,7 @@ class AuthController extends GetxController {
         verificationCompleted: (PhoneAuthCredential credential) async {
           try {
             await _auth.signInWithCredential(credential);
+            await _applyPendingName();
             _finishLogin();
           } on FirebaseAuthException catch (e) {
             _setLoading(false);
@@ -247,6 +311,7 @@ class AuthController extends GetxController {
         final token = (res.data as Map)['token'] as String;
         await _auth.signInWithCustomToken(token);
       }
+      if (otpMethod == OtpMethod.phone) await _applyPendingName();
       _finishLogin();
       return true;
     } on FirebaseAuthException catch (e) {
@@ -268,7 +333,7 @@ class AuthController extends GetxController {
 
   Future<void> resendOtp() async {
     if (otpMethod == OtpMethod.phone) {
-      await sendPhoneOtp(otpTarget, isResend: true);
+      await sendPhoneOtp(otpTarget, isResend: true, name: _pendingName);
     } else {
       await sendEmailOtp(otpTarget, isResend: true);
     }
@@ -327,7 +392,7 @@ class AuthController extends GetxController {
     Get.snackbar(
       title,
       msg,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       margin: const EdgeInsets.all(16),
       borderRadius: 14,
       backgroundColor: ok ? const Color(0xFF2ECC71) : const Color(0xFFE74C3C),

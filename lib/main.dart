@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/views/auth/login_screen.dart';
+import 'package:login_learn_new_app/views/auth/set_name_screen.dart';
 import 'package:login_learn_new_app/views/home/home_screen.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
 import 'package:login_learn_new_app/controllers/call_controller.dart';
@@ -43,7 +44,9 @@ class MyApp extends StatelessWidget {
       ),
       home: GetBuilder<AuthController>(
         builder: (c) {
-          return c.isLoggedIn ? const HomeScreen() : const LoginScreen();
+          if (!c.isLoggedIn) return const LoginScreen();
+          if (c.needsName) return const SetNameScreen();
+          return const HomeScreen();
         },
       ),
     );
