@@ -7,7 +7,6 @@ import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:login_learn_new_app/controllers/home_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
-import 'package:login_learn_new_app/views/home/home_screen.dart';
 import 'package:login_learn_new_app/views/saved/saved_screen.dart';
 
 final AuthController auth = Get.find<AuthController>();
