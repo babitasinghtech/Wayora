@@ -1,24 +1,27 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:login_learn_new_app/controllers/base_post_controller.dart';
 import 'package:login_learn_new_app/models/post_model.dart';
 import 'package:login_learn_new_app/services/db.dart';
-import 'package:login_learn_new_app/widgets/common.dart';
-import 'package:share_plus/share_plus.dart';
 
-/// Owns the community feed state: live posts, like / share / delete actions.
-class PostController extends GetxController {
+enum FeedScope { connections, everyone }
+
+/// Community feed.
+/// - connections: my own posts + posts of people I have chatted with
+/// - everyone:    latest posts of all users
+class PostController extends BasePostController {
+  static const _maxFeedUsers = 30; // Firestore whereIn limit (me + 29 people)
+
   List<Post> posts = [];
   bool isLoading = true;
   String? error;
+  FeedScope scope = FeedScope.connections;
+  int connectionCount = 0;
 
-  StreamSubscription? _sub;
-  final Map<String, Uint8List> _imageCache = {}; // decode each photo only once
-
-  String get myUid => Db.myUid;
-  String get myName => Db.nameOf(Db.me);
+  StreamSubscription? _chatSub;
+  StreamSubscription? _postSub;
+  Set<String> _feedIds = {};
 
   @override
   void onInit() {
@@ -28,75 +31,78 @@ class PostController extends GetxController {
 
   @override
   void onClose() {
-    _sub?.cancel();
+    _cancelAll();
     super.onClose();
   }
 
-  void _listen() {
-    _sub?.cancel();
-    isLoading = true;
-    error = null;
-    update();
-    _sub = Db.postsStream().listen(
-      (snap) {
-        posts = snap.docs.map(Post.fromDoc).toList();
-        final alive = posts.map((p) => p.id).toSet();
-        _imageCache.removeWhere((id, _) => !alive.contains(id));
-        isLoading = false;
-        error = null;
-        update();
-      },
-      onError: (Object e) {
-        error = e.toString();
-        isLoading = false;
-        update();
-      },
-    );
+  void _cancelAll() {
+    _chatSub?.cancel();
+    _postSub?.cancel();
+    _chatSub = null;
+    _postSub = null;
+    _feedIds = {};
+  }
+
+  void setScope(FeedScope s) {
+    if (s == scope) return;
+    scope = s;
+    _listen();
   }
 
   void retry() => _listen();
 
-  /// Decoded photo bytes for a post (null when it has no / a broken photo).
-  Uint8List? imageOf(Post p) {
-    if (!p.hasImage) return null;
-    final cached = _imageCache[p.id];
-    if (cached != null) return cached;
-    try {
-      return _imageCache[p.id] = base64Decode(p.image!);
-    } catch (_) {
-      return null;
+  /// Pull-to-refresh: re-subscribe without flashing the loading skeleton.
+  void refreshFeed() => _listen(showLoader: false);
+
+  void _listen({bool showLoader = true}) {
+    _cancelAll();
+    if (showLoader) {
+      isLoading = true;
+      error = null;
+      update();
     }
-  }
 
-  // ------------------------------------------------------------ actions
-  void toggleLike(Post p) {
-    Db.toggleLike(p.id, p.isLikedBy(myUid)).catchError((e) {
-      showToast('Error', '$e', ok: false);
-    });
-  }
-
-  /// Double-tap on a photo: only ever likes, never un-likes.
-  void likeOnly(Post p) {
-    if (!p.isLikedBy(myUid)) toggleLike(p);
-  }
-
-  Future<void> share(Post p) async {
-    final text = p.text.isEmpty
-        ? 'Check out ${p.authorName}\'s post on Wanderly!'
-        : '"${p.text}"\n— ${p.authorName} on Wanderly';
-    try {
-      await Share.share(text);
-      await Db.countShare(p.id);
-    } catch (e) {
-      showToast('Could not share', '$e', ok: false);
+    if (scope == FeedScope.everyone) {
+      _postSub = Db.postsStream().listen(_onPosts, onError: _onError);
+      return;
     }
+
+    // Connections = everyone I have a chat with.
+    _chatSub = Db.chatsStream().listen((snap) {
+      final peers = <String>{};
+      for (final d in snap.docs) {
+        final list = List<String>.from(d.data()['participants'] ?? const []);
+        peers.addAll(list.where((id) => id.isNotEmpty && id != myUid));
+      }
+      connectionCount = peers.length;
+      final ids = <String>{myUid, ...peers.take(_maxFeedUsers - 1)};
+      if (_postSub != null &&
+          ids.length == _feedIds.length &&
+          ids.containsAll(_feedIds)) {
+        return; // same people, the posts stream is already live
+      }
+      _feedIds = ids;
+      _postSub?.cancel();
+      _postSub = Db.postsByUsersStream(ids.toList()).listen(
+        _onPosts,
+        onError: _onError,
+      );
+    }, onError: _onError);
   }
 
-  Future<void> delete(Post p) async {
-    try {
-      await Db.deletePost(p.id);
-    } catch (e) {
-      showToast('Error', '$e', ok: false);
-    }
+  void _onPosts(QuerySnapshot<Map<String, dynamic>> snap) {
+    final list = snap.docs.map(Post.fromDoc).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    posts = list.take(50).toList();
+    pruneImages(posts);
+    isLoading = false;
+    error = null;
+    update();
+  }
+
+  void _onError(Object e) {
+    error = e.toString();
+    isLoading = false;
+    update();
   }
 }

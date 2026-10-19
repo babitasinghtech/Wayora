@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:login_learn_new_app/controllers/home_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/views/home/home_screen.dart';
 import 'package:login_learn_new_app/views/saved/saved_screen.dart';
@@ -139,14 +138,12 @@ Widget exploreTab(HomeController h) {
                   child: Badge(
                     isLabelVisible: h.saved.isNotEmpty,
                     label: Text('${h.saved.length}'),
-                    child: Center(
-                      child: Icon(
-                        h.saved.isNotEmpty
-                            ? Icons.favorite_rounded
-                            : Icons.favorite_border_rounded,
-                        color: Colors.redAccent,
-                        size: 28,
-                      ),
+                    child: Icon(
+                      h.saved.isNotEmpty
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      color: Colors.redAccent,
+                      size: 24,
                     ),
                   ),
                 ),

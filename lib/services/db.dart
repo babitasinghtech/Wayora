@@ -50,6 +50,14 @@ class Db {
   static Stream<QuerySnapshot<Map<String, dynamic>>> postsStream() =>
       _posts.orderBy('createdAt', descending: true).limit(50).snapshots();
 
+  /// Posts of the given users (max 30 ids). No orderBy on purpose, so no
+  /// composite index is needed - the controller sorts by time.
+  static Stream<QuerySnapshot<Map<String, dynamic>>> postsByUsersStream(List<String> uids) =>
+      _posts.where('uid', whereIn: uids).snapshots();
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> myPostsStream() =>
+      _posts.where('uid', isEqualTo: myUid).snapshots();
+
   static Future<void> addPost({required String text, String? imageB64}) {
     final u = me!;
     return _posts.add({

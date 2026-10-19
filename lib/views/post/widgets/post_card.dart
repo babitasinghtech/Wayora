@@ -1,6 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:login_learn_new_app/controllers/post_controller.dart';
+import 'package:login_learn_new_app/controllers/base_post_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/models/post_model.dart';
 import 'package:login_learn_new_app/views/post/widgets/comments_sheet.dart';
@@ -10,7 +12,7 @@ import 'package:login_learn_new_app/widgets/common.dart';
 class PostCard extends StatelessWidget {
   const PostCard({super.key, required this.post, required this.controller});
   final Post post;
-  final PostController controller;
+  final BasePostController controller;
 
   void _confirmDelete() {
     Get.dialog(
@@ -52,33 +54,12 @@ class PostCard extends StatelessWidget {
           if (post.text.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
-              child: Text(
-                post.text,
-                style: const TextStyle(
-                  color: AppColor.kInk,
-                  fontSize: 15,
-                  height: 1.4,
-                ),
-              ),
+              child: _ExpandableText(post.text),
             ),
           if (img != null)
-            GestureDetector(
+            _LikeableImage(
+              bytes: img,
               onDoubleTap: () => controller.likeOnly(post),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: Image.memory(
-                      img,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                    ),
-                  ),
-                ),
-              ),
             ),
           Padding(
             padding: const EdgeInsets.all(8),
@@ -121,15 +102,42 @@ class PostCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  post.authorName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColor.kInk,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        post.authorName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColor.kInk,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                    if (post.isOwnedBy(controller.myUid)) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColor.kPrimary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'You',
+                          style: TextStyle(
+                            color: AppColor.kPrimary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 Text(
                   timeAgo(post.createdAt),
@@ -186,6 +194,120 @@ class PostActionButton extends StatelessWidget {
             const SizedBox(width: 6),
             Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Text that collapses after 4 lines with a "more" toggle.
+class _ExpandableText extends StatefulWidget {
+  const _ExpandableText(this.text);
+  final String text;
+
+  @override
+  State<_ExpandableText> createState() => _ExpandableTextState();
+}
+
+class _ExpandableTextState extends State<_ExpandableText> {
+  static const _style = TextStyle(color: AppColor.kInk, fontSize: 15, height: 1.4);
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, box) {
+        final tp = TextPainter(
+          text: TextSpan(text: widget.text, style: _style),
+          maxLines: 4,
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: box.maxWidth);
+        final overflows = tp.didExceedMaxLines;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.text,
+              style: _style,
+              maxLines: _open ? null : 4,
+              overflow: _open ? TextOverflow.visible : TextOverflow.ellipsis,
+            ),
+            if (overflows)
+              GestureDetector(
+                onTap: () => setState(() => _open = !_open),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    _open ? 'Show less' : 'more',
+                    style: const TextStyle(
+                      color: AppColor.kPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Post photo; double-tap shows a heart burst and likes the post.
+class _LikeableImage extends StatefulWidget {
+  const _LikeableImage({required this.bytes, required this.onDoubleTap});
+  final Uint8List bytes;
+  final VoidCallback onDoubleTap;
+
+  @override
+  State<_LikeableImage> createState() => _LikeableImageState();
+}
+
+class _LikeableImageState extends State<_LikeableImage> {
+  bool _burst = false;
+
+  void _onDoubleTap() {
+    widget.onDoubleTap();
+    setState(() => _burst = true);
+    Future.delayed(const Duration(milliseconds: 650), () {
+      if (mounted) setState(() => _burst = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onDoubleTap: _onDoubleTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.memory(widget.bytes, fit: BoxFit.cover, gaplessPlayback: true),
+                Center(
+                  child: AnimatedScale(
+                    scale: _burst ? 1.0 : 0.4,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOutBack,
+                    child: AnimatedOpacity(
+                      opacity: _burst ? 1 : 0,
+                      duration: const Duration(milliseconds: 200),
+                      child: const Icon(
+                        Icons.favorite_rounded,
+                        color: Colors.white,
+                        size: 96,
+                        shadows: [Shadow(color: Colors.black38, blurRadius: 18)],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

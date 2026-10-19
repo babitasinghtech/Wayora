@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 
+/// Shown right after phone-OTP login when the user has no name yet.
+/// The user cannot go past this screen until a name is saved.
 class SetNameScreen extends StatefulWidget {
   const SetNameScreen({super.key});
 

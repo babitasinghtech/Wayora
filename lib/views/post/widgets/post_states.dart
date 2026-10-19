@@ -54,20 +54,28 @@ class PostFeedSkeleton extends StatelessWidget {
 }
 
 class PostEmptyView extends StatelessWidget {
-  const PostEmptyView({super.key});
+  const PostEmptyView({
+    super.key,
+    this.message = 'No posts yet.\nBe the first to share a moment!',
+  });
+  final String message;
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 50),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 50),
       child: Column(
         children: [
-          Icon(Icons.photo_camera_back_rounded, size: 56, color: Colors.black26),
-          SizedBox(height: 10),
+          const Icon(
+            Icons.photo_camera_back_rounded,
+            size: 56,
+            color: Colors.black26,
+          ),
+          const SizedBox(height: 10),
           Text(
-            'No posts yet.\nBe the first to share a moment!',
+            message,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black45),
+            style: const TextStyle(color: Colors.black45),
           ),
         ],
       ),

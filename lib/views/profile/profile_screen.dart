@@ -4,10 +4,12 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
-import 'package:login_learn_new_app/controllers/home_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
+import 'package:login_learn_new_app/views/home/home_screen.dart';
 import 'package:login_learn_new_app/views/saved/saved_screen.dart';
+import 'package:login_learn_new_app/views/profile/widgets/profile_posts_stat.dart';
+import 'package:login_learn_new_app/views/post/my_posts_screen.dart';
 
 final AuthController auth = Get.find<AuthController>();
 Widget profileTab(HomeController h) {
@@ -80,13 +82,11 @@ Widget profileTab(HomeController h) {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: openSaved,
-                        child: Row(
-                          children: [_stat('${h.saved.length}', 'Saved')],
-                        ),
+                        child: Row(children: [_stat('${h.saved.length}', 'Saved')]),
                       ),
                     ),
                     _divider(),
-                    _stat('8', 'Reviews'),
+                    const ProfilePostsStat(),
                   ],
                 ),
               ),
@@ -98,11 +98,20 @@ Widget profileTab(HomeController h) {
             child: Column(
               children: [
                 _menuTile(
+                  Icons.grid_view_rounded,
+                  'My posts',
+                  openMyPosts,
+                ),
+                _menuTile(
                   Icons.person_outline_rounded,
                   'Edit profile',
                   () => _soon('Edit profile'),
                 ),
-                _menuTile(Icons.favorite_border, 'Saved', openSaved),
+                _menuTile(
+                  Icons.favorite_border,
+                  'Saved',
+                  openSaved,
+                ),
                 _menuTile(
                   Icons.credit_card_rounded,
                   'Payment methods',

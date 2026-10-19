@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:login_learn_new_app/services/db.dart';
 import 'package:login_learn_new_app/widgets/common.dart';
 
+/// State + logic of the "New post" screen.
 class AddPostController extends GetxController {
   static const maxChars = 600;
-  static const _maxBase64Length = 900 * 1024;
+  static const _maxBase64Length = 900 * 1024; // photo is stored inside Firestore
 
   final TextEditingController text = TextEditingController();
   Uint8List? imageBytes;
@@ -48,11 +50,7 @@ class AddPostController extends GetxController {
     if (isBusy) return false;
     final body = text.text.trim();
     if (body.isEmpty && imageBytes == null) {
-      showToast(
-        'Nothing to post',
-        'Write something or add a photo.',
-        ok: false,
-      );
+      showToast('Nothing to post', 'Write something or add a photo.', ok: false);
       return false;
     }
     String? b64;

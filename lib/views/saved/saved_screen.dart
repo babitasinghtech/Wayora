@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:login_learn_new_app/controllers/home_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/views/home/home_screen.dart';
 
@@ -11,7 +10,6 @@ final List<BoxShadow> _softShadow = [
     offset: const Offset(0, 6),
   ),
 ];
-
 /// Opens the Saved places page (used by Profile and the Explore heart icon).
 void openSaved() {
   Get.to(
