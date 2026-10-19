@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 
-/// Round avatar showing the first letter of a name.
 class InitialAvatar extends StatelessWidget {
   const InitialAvatar({super.key, required this.name, this.radius = 22});
   final String name;
