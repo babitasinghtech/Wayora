@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 DateTime _toTime(dynamic ts) => ts is Timestamp ? ts.toDate() : DateTime.now();
 
-/// A community post (text and/or a base64 photo stored in Firestore).
 class Post {
   const Post({
     required this.id,
