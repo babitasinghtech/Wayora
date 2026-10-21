@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/controllers/post_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
-import 'package:login_learn_new_app/views/post/my_posts_screen.dart';
 import 'package:login_learn_new_app/views/post/widgets/post_card.dart';
 import 'package:login_learn_new_app/views/post/widgets/post_composer.dart';
 import 'package:login_learn_new_app/views/post/widgets/post_states.dart';
@@ -60,20 +59,6 @@ class PostTab extends StatelessWidget {
               ],
             ),
           ),
-          // OutlinedButton.icon(
-          //   onPressed: openMyPosts,
-          //   icon: const Icon(Icons.grid_view_rounded, size: 18),
-          //   label: const Text('My posts'),
-          //   style: OutlinedButton.styleFrom(
-          //     foregroundColor: AppColor.kPrimary,
-          //     backgroundColor: Colors.white,
-          //     side: const BorderSide(color: AppColor.kPrimary),
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(20),
-          //     ),
-          //     textStyle: const TextStyle(fontWeight: FontWeight.w700),
-          //   ),
-          // ),
         ],
       ),
     );
