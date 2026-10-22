@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -45,7 +44,10 @@ class CallController extends GetxController {
         .where('calleeId', isEqualTo: user.uid)
         .where('status', isEqualTo: 'ringing')
         .snapshots()
-        .listen(_onCalls, onError: (e) => debugPrint('call listener error: $e'));
+        .listen(
+          _onCalls,
+          onError: (e) => debugPrint('call listener error: $e'),
+        );
   }
 
   void _onCalls(QuerySnapshot<Map<String, dynamic>> snap) {
@@ -56,7 +58,8 @@ class CallController extends GetxController {
 
       // ignore old calls that were never answered
       final ts = data['createdAt'];
-      if (ts is Timestamp && DateTime.now().difference(ts.toDate()).inSeconds.abs() > 60) {
+      if (ts is Timestamp &&
+          DateTime.now().difference(ts.toDate()).inSeconds.abs() > 60) {
         continue;
       }
 

@@ -1,9 +1,7 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
-
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
 import 'package:login_learn_new_app/views/auth/signup_screen.dart';
 
@@ -17,7 +15,18 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  static const _dialCodes = ['+91', '+1', '+44', '+971', '+92', '+880', '+977', '+94', '+61', '+65'];
+  static const _dialCodes = [
+    '+91',
+    '+1',
+    '+44',
+    '+971',
+    '+92',
+    '+880',
+    '+977',
+    '+94',
+    '+61',
+    '+65',
+  ];
 
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
@@ -57,7 +66,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  InputDecoration _decoration(String label, IconData icon, {Widget? suffix, String? prefixText}) {
+  InputDecoration _decoration(
+    String label,
+    IconData icon, {
+    Widget? suffix,
+    String? prefixText,
+  }) {
     OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
       borderSide: BorderSide(color: c, width: w),
@@ -98,7 +112,11 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18, color: selected ? Colors.white : Colors.white70),
+              Icon(
+                icon,
+                size: 18,
+                color: selected ? Colors.white : Colors.white70,
+              ),
               const SizedBox(width: 6),
               Text(
                 label,
@@ -148,7 +166,9 @@ class _LoginScreenState extends State<LoginScreen> {
         suffix: IconButton(
           onPressed: c.togglePassword,
           icon: Icon(
-            c.obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+            c.obscurePassword
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
             color: Colors.white70,
           ),
         ),
@@ -194,8 +214,14 @@ class _LoginScreenState extends State<LoginScreen> {
             value: _dial,
             dropdownColor: const Color(0xFF1B3A38),
             iconEnabledColor: Colors.white70,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
-            items: _dialCodes.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+            items: _dialCodes
+                .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                .toList(),
             onChanged: (v) => setState(() => _dial = v ?? _dial),
           ),
         ),
@@ -210,7 +236,13 @@ class _LoginScreenState extends State<LoginScreen> {
           textInputAction: TextInputAction.done,
           onFieldSubmitted: (_) => _submit(),
           maxLength: 12,
-          buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
+          buildCounter:
+              (
+                context, {
+                required currentLength,
+                required isFocused,
+                maxLength,
+              }) => null,
           decoration: _decoration('Mobile number', Icons.phone_android_rounded),
           validator: (v) {
             final t = (v ?? '').trim();
@@ -284,7 +316,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.explore_rounded, color: Colors.white, size: 42),
+                        child: const Icon(
+                          Icons.explore_rounded,
+                          color: Colors.white,
+                          size: 42,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -314,7 +350,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.14),
                               borderRadius: BorderRadius.circular(28),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.28),
+                              ),
                             ),
                             child: Form(
                               key: _formKey,
@@ -335,13 +373,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.1),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Row(
                                       children: [
-                                        _tabButton('Email', Icons.email_outlined, _LoginTab.email),
-                                        _tabButton('Mobile', Icons.phone_android_rounded, _LoginTab.mobile),
+                                        _tabButton(
+                                          'Email',
+                                          Icons.email_outlined,
+                                          _LoginTab.email,
+                                        ),
+                                        _tabButton(
+                                          'Mobile',
+                                          Icons.phone_android_rounded,
+                                          _LoginTab.mobile,
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -360,12 +408,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                           if (_emailOtp) {
                                             setState(() => _emailOtp = false);
                                           } else {
-                                            _auth.resetPassword(_email.text.trim());
+                                            _auth.resetPassword(
+                                              _email.text.trim(),
+                                            );
                                           }
                                         },
                                         child: Text(
-                                          _emailOtp ? 'Use password instead' : 'Forgot password?',
-                                          style: const TextStyle(color: Colors.white70),
+                                          _emailOtp
+                                              ? 'Use password instead'
+                                              : 'Forgot password?',
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -374,10 +428,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                     const SizedBox(height: 16),
                                     _phoneField(),
                                     const Padding(
-                                      padding: EdgeInsets.fromLTRB(4, 10, 4, 14),
+                                      padding: EdgeInsets.fromLTRB(
+                                        4,
+                                        10,
+                                        4,
+                                        14,
+                                      ),
                                       child: Text(
                                         "We'll text you a 6-digit code to verify your number.",
-                                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 13,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -389,12 +451,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                       height: 54,
                                       decoration: BoxDecoration(
                                         gradient: const LinearGradient(
-                                          colors: [AppColor.kPrimary, Color(0xFF2FD3A3)],
+                                          colors: [
+                                            AppColor.kPrimary,
+                                            Color(0xFF2FD3A3),
+                                          ],
                                         ),
                                         borderRadius: BorderRadius.circular(16),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: AppColor.kPrimary.withValues(alpha: 0.45),
+                                            color: AppColor.kPrimary.withValues(
+                                              alpha: 0.45,
+                                            ),
                                             blurRadius: 16,
                                             offset: const Offset(0, 8),
                                           ),
@@ -404,20 +471,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                         onPressed: c.isLoading ? null : _submit,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.transparent,
-                                          disabledBackgroundColor: Colors.transparent,
+                                          disabledBackgroundColor:
+                                              Colors.transparent,
                                           shadowColor: Colors.transparent,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                           ),
                                         ),
                                         child: c.isLoading
                                             ? const SizedBox(
                                                 width: 24,
                                                 height: 24,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2.6,
-                                                  color: Colors.white,
-                                                ),
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2.6,
+                                                      color: Colors.white,
+                                                    ),
                                               )
                                             : Text(
                                                 _buttonLabel,
@@ -436,11 +507,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                   if (_tab == _LoginTab.email && !_emailOtp)
                                     Center(
                                       child: TextButton.icon(
-                                        onPressed: () => setState(() => _emailOtp = true),
-                                        icon: const Icon(Icons.pin_outlined, size: 18, color: Color(0xFF5CF2C8)),
+                                        onPressed: () =>
+                                            setState(() => _emailOtp = true),
+                                        icon: const Icon(
+                                          Icons.pin_outlined,
+                                          size: 18,
+                                          color: Color(0xFF5CF2C8),
+                                        ),
                                         label: const Text(
                                           'Login with email OTP instead',
-                                          style: TextStyle(color: Color(0xFF5CF2C8), fontWeight: FontWeight.w600),
+                                          style: TextStyle(
+                                            color: Color(0xFF5CF2C8),
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -454,7 +533,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                         style: TextStyle(color: Colors.white70),
                                       ),
                                       TextButton(
-                                        onPressed: () => Get.to(() => const SignUpScreen()),
+                                        onPressed: () =>
+                                            Get.to(() => const SignUpScreen()),
                                         child: const Text(
                                           'Sign Up',
                                           style: TextStyle(

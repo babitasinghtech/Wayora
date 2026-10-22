@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,10 @@ class AuthController extends GetxController {
   String _pendingName = ''; // name typed on the login form (phone login)
   int? _resendToken;
 
+  // ---------- extra profile data (users/{uid}) ----------
+  Uint8List? photoBytes;
+  String bio = '';
+
   String get displayName {
     final name = user?.displayName;
     if (name != null && name.trim().isNotEmpty) return name.trim();
@@ -46,7 +52,11 @@ class AuthController extends GetxController {
   Future<bool> saveName(String name) async {
     final n = name.trim();
     if (n.length < 2) {
-      _toast('Name required', 'Please enter your name (min 2 letters).', ok: false);
+      _toast(
+        'Name required',
+        'Please enter your name (min 2 letters).',
+        ok: false,
+      );
       return false;
     }
     _setLoading(true);
@@ -90,6 +100,54 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> loadProfileExtras() async {
+    if (user == null) return;
+    try {
+      final m = await Db.myProfile();
+      bio = (m['bio'] ?? '') as String;
+      final p = m['photo'];
+      photoBytes = (p is String && p.isNotEmpty) ? base64Decode(p) : null;
+      update();
+    } catch (e) {
+      debugPrint('profile extras load failed: $e');
+    }
+  }
+
+  /// Edit-profile save. Login phone / email are never touched here.
+  Future<bool> updateProfile({
+    required String name,
+    required String bio,
+    Uint8List? photo,
+    bool removePhoto = false,
+  }) async {
+    final n = name.trim();
+    if (n.length < 2) {
+      _toast('Name required', 'Please enter your name (min 2 letters).', ok: false);
+      return false;
+    }
+    _setLoading(true);
+    try {
+      if (n != displayName) await _writeName(n);
+      await Db.saveProfileExtras(
+        bio: bio.trim(),
+        photoB64: photo == null ? null : base64Encode(photo),
+        removePhoto: removePhoto,
+      );
+      this.bio = bio.trim();
+      if (photo != null) photoBytes = photo;
+      if (removePhoto) photoBytes = null;
+      _isLoadingOff();
+      _toast('Profile updated', 'Your changes were saved.', ok: true);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _toast('Could not save profile', _friendly(e), ok: false);
+    } catch (e) {
+      _toast('Error', e.toString(), ok: false);
+    }
+    _isLoadingOff();
+    return false;
+  }
+
   void _isLoadingOff() {
     isLoading = false;
     update(); // rebuilds root -> moves on to Home when name is set
@@ -113,10 +171,16 @@ class AuthController extends GetxController {
     super.onInit();
     user = _auth.currentUser;
     _syncProfile(user);
+    loadProfileExtras();
     _sub = _auth.authStateChanges().listen((u) {
       user = u;
+      if (u == null) {
+        photoBytes = null;
+        bio = '';
+      }
       update();
       _syncProfile(u); // keep users/{uid} up to date (chat + calls need it)
+      if (u != null) loadProfileExtras();
     });
   }
 
@@ -218,7 +282,11 @@ class AuthController extends GetxController {
   // =====================================================
 
   // ---------- Mobile OTP (Firebase Phone Auth) ----------
-  Future<void> sendPhoneOtp(String phone, {bool isResend = false, String? name}) async {
+  Future<void> sendPhoneOtp(
+    String phone, {
+    bool isResend = false,
+    String? name,
+  }) async {
     if (name != null) _pendingName = name.trim();
     _setLoading(true);
     otpMethod = OtpMethod.phone;

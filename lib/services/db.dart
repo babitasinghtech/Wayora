@@ -29,6 +29,26 @@ class Db {
     }, SetOptions(merge: true));
   }
 
+  /// Extra profile data kept in users/{uid}: bio + photo (base64).
+  static Future<Map<String, dynamic>> myProfile() async {
+    final d = await _fs.collection('users').doc(myUid).get();
+    return d.data() ?? <String, dynamic>{};
+  }
+
+  static Future<void> saveProfileExtras({
+    required String bio,
+    String? photoB64,
+    bool removePhoto = false,
+  }) {
+    final data = <String, dynamic>{
+      'bio': bio,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+    if (photoB64 != null) data['photo'] = photoB64;
+    if (removePhoto) data['photo'] = FieldValue.delete();
+    return _fs.collection('users').doc(myUid).set(data, SetOptions(merge: true));
+  }
+
   /// After a phone user sets their name, replace the old (phone-number)
   /// author name on their existing posts.
   static Future<void> updateMyPostsName(String name) async {

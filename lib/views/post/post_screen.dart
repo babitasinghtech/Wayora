@@ -6,7 +6,6 @@ import 'package:login_learn_new_app/views/post/widgets/post_card.dart';
 import 'package:login_learn_new_app/views/post/widgets/post_composer.dart';
 import 'package:login_learn_new_app/views/post/widgets/post_states.dart';
 
-/// Community feed tab. UI only - all state lives in [PostController].
 class PostTab extends StatelessWidget {
   const PostTab({super.key});
 

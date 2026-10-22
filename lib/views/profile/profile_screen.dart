@@ -10,13 +10,14 @@ import 'package:login_learn_new_app/views/home/home_screen.dart';
 import 'package:login_learn_new_app/views/saved/saved_screen.dart';
 import 'package:login_learn_new_app/views/profile/widgets/profile_posts_stat.dart';
 import 'package:login_learn_new_app/views/post/my_posts_screen.dart';
+import 'package:login_learn_new_app/views/profile/edit_profile_screen.dart';
+import 'package:login_learn_new_app/views/profile/widgets/profile_widgets.dart';
 
 final AuthController auth = Get.find<AuthController>();
 Widget profileTab(HomeController h) {
   return GetBuilder<AuthController>(
     builder: (a) {
-      final u = a.user;
-      return ListView(
+          return ListView(
         padding: EdgeInsets.zero,
         children: [
           Container(
@@ -43,7 +44,15 @@ Widget profileTab(HomeController h) {
                   ),
                 ),
                 const SizedBox(height: 18),
-                _Avatar(initials: a.initials, radius: 46, ring: Colors.white),
+                GestureDetector(
+                  onTap: () => Get.to(() => const EditProfileScreen()),
+                  child: ProfileAvatar(
+                    initials: a.initials,
+                    radius: 46,
+                    ring: Colors.white,
+                    photo: a.photoBytes,
+                  ),
+                ),
                 const SizedBox(height: 14),
                 Text(
                   a.displayName,
@@ -53,11 +62,19 @@ Widget profileTab(HomeController h) {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  a.contact,
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
-                ),
+                if (a.bio.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      a.bio,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -97,70 +114,25 @@ Widget profileTab(HomeController h) {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                _menuTile(
-                  Icons.grid_view_rounded,
-                  'My posts',
-                  openMyPosts,
+                ProfileMenuTile(
+                  icon: Icons.grid_view_rounded,
+                  title: 'My posts',
+                  onTap: openMyPosts,
                 ),
-                _menuTile(
-                  Icons.person_outline_rounded,
-                  'Edit profile',
-                  () => _soon('Edit profile'),
+                ProfileMenuTile(
+                  icon: Icons.person_outline_rounded,
+                  title: 'Edit profile',
+                  onTap: () => Get.to(() => const EditProfileScreen()),
                 ),
-                _menuTile(
-                  Icons.favorite_border,
-                  'Saved',
-                  openSaved,
+                ProfileMenuTile(
+                  icon: Icons.favorite_border,
+                  title: 'Saved',
+                  onTap: openSaved,
                 ),
-                _menuTile(
-                  Icons.credit_card_rounded,
-                  'Payment methods',
-                  () => _soon('Payments'),
-                ),
-                _menuTile(
-                  Icons.notifications_none_rounded,
-                  'Notifications',
-                  () => _soon('Notifications'),
-                ),
-                _menuTile(
-                  Icons.shield_outlined,
-                  'Privacy & security',
-                  () => _soon('Privacy'),
-                ),
-                _menuTile(
-                  Icons.help_outline_rounded,
-                  'Help center',
-                  () => _soon('Help'),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: _softShadow,
-                  ),
-                  child: Column(
-                    children: [
-                      (u?.email ?? '').isNotEmpty
-                          ? _infoRow(
-                              Icons.verified_outlined,
-                              'Email verified',
-                              (u?.emailVerified ?? false) ? 'Yes' : 'No',
-                            )
-                          : _infoRow(
-                              Icons.phone_android_rounded,
-                              'Mobile number',
-                              u?.phoneNumber ?? '-',
-                            ),
-                      const Divider(height: 22),
-                      _infoRow(
-                        Icons.event_available_outlined,
-                        'Member since',
-                        _fmtDate(u?.metadata.creationTime),
-                      ),
-                    ],
-                  ),
+                ProfileMenuTile(
+                  icon: Icons.help_outline_rounded,
+                  title: 'Help center',
+                  onTap: () => profileSoon('Help'),
                 ),
                 const SizedBox(height: 22),
                 SizedBox(
@@ -201,53 +173,6 @@ Widget profileTab(HomeController h) {
   );
 }
 
-class _Avatar extends StatelessWidget {
-  const _Avatar({required this.initials, required this.radius, this.ring});
-  final String initials;
-  final double radius;
-  final Color? ring;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: ring == null
-            ? const LinearGradient(
-                colors: [AppColor.kPrimary, AppColor.kAccent],
-              )
-            : null,
-        color: ring,
-      ),
-      child: CircleAvatar(
-        radius: radius,
-        backgroundColor: const Color(0xFFE6F6F3),
-        child: Text(
-          initials,
-          style: TextStyle(
-            color: AppColor.kDark,
-            fontSize: radius * 0.75,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-void _soon(String what) {
-  Get.snackbar(
-    what,
-    'This feature is coming soon.',
-    snackPosition: SnackPosition.TOP,
-    margin: const EdgeInsets.all(16),
-    borderRadius: 14,
-    backgroundColor: AppColor.kDark,
-    colorText: Colors.white,
-  );
-}
-
 void _confirmLogout() {
   Get.dialog(
     AlertDialog(
@@ -277,63 +202,7 @@ final List<BoxShadow> _softShadow = [
     offset: const Offset(0, 6),
   ),
 ];
-Widget _infoRow(IconData icon, String label, String value) => Row(
-  children: [
-    Icon(icon, color: AppColor.kPrimary, size: 22),
-    const SizedBox(width: 12),
-    Expanded(
-      child: Text(label, style: const TextStyle(color: Colors.black54)),
-    ),
-    Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
-  ],
-);
-
-String _fmtDate(DateTime? d) {
-  if (d == null) return '-';
-  const m = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  final l = d.toLocal();
-  return '${l.day} ${m[l.month - 1]} ${l.year}';
-}
-
 Widget _divider() => Container(width: 1, height: 34, color: Colors.black12);
-
-Widget _menuTile(IconData icon, String title, VoidCallback onTap) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
-      boxShadow: _softShadow,
-    ),
-    child: ListTile(
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      leading: Container(
-        padding: const EdgeInsets.all(9),
-        decoration: BoxDecoration(
-          color: AppColor.kPrimary.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: AppColor.kPrimary, size: 22),
-      ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
-    ),
-  );
-}
 
 Widget _stat(String value, String label) => Expanded(
   child: Column(
