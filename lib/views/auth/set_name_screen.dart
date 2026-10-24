@@ -25,7 +25,6 @@ class _SetNameScreenState extends State<SetNameScreen> {
     if (!(_form.currentState?.validate() ?? false)) return;
     FocusScope.of(context).unfocus();
     await _auth.saveName(_name.text);
-    // On success AuthController.update() rebuilds the root and opens Home.
   }
 
   @override
