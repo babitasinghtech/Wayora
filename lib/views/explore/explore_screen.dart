@@ -138,12 +138,14 @@ Widget exploreTab(HomeController h) {
                   child: Badge(
                     isLabelVisible: h.saved.isNotEmpty,
                     label: Text('${h.saved.length}'),
-                    child: Icon(
-                      h.saved.isNotEmpty
-                          ? Icons.favorite_rounded
-                          : Icons.favorite_border_rounded,
-                      color: Colors.redAccent,
-                      size: 24,
+                    child: Center(
+                      child: Icon(
+                        h.saved.isNotEmpty
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        color: Colors.redAccent,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),

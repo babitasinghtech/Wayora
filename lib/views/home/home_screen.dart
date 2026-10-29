@@ -292,11 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Explore',
               ),
               NavigationDestination(
-                icon: Badge(
-                  isLabelVisible: h.saved.isNotEmpty,
-                  label: Text('${h.saved.length}'),
-                  child: const Icon(Icons.post_add_rounded),
-                ),
+                icon: const Icon(Icons.post_add_rounded),
+
                 selectedIcon: const Icon(
                   Icons.post_add,
                   color: AppColor.kPrimary,

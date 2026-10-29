@@ -10,6 +10,7 @@ final List<BoxShadow> _softShadow = [
     offset: const Offset(0, 6),
   ),
 ];
+
 /// Opens the Saved places page (used by Profile and the Explore heart icon).
 void openSaved() {
   Get.to(
