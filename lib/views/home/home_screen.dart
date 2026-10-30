@@ -5,12 +5,10 @@ import 'package:login_learn_new_app/models/connected_user.dart';
 import 'package:login_learn_new_app/views/explore/explore_screen.dart';
 import 'package:login_learn_new_app/views/post/post_screen.dart';
 import 'package:login_learn_new_app/views/profile/profile_screen.dart';
-import 'package:login_learn_new_app/views/saved/saved_screen.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
 import 'package:login_learn_new_app/views/chat/chat_list_screen.dart';
 import 'package:login_learn_new_app/views/stories/story_upload_screen.dart';
 import 'package:login_learn_new_app/views/stories/story_viewer_screen.dart';
-import 'package:login_learn_new_app/models/connected_user.dart';
 
 class Destination {
   const Destination({

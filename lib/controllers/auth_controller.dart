@@ -22,10 +22,10 @@ class AuthController extends GetxController {
 
   // ---------- OTP state ----------
   OtpMethod otpMethod = OtpMethod.phone;
-  String otpTarget = ''; // phone number (+91...) or email being verified
+  String otpTarget = '';
   bool isVerifying = false;
   String? _verificationId;
-  String _pendingName = ''; // name typed on the login form (phone login)
+  String _pendingName = '';
   int? _resendToken;
 
   // ---------- extra profile data (users/{uid}) ----------
@@ -85,8 +85,6 @@ class AuthController extends GetxController {
     }
   }
 
-  /// Applies the name typed on the login form once the phone sign-in succeeded.
-  /// Existing accounts that already have a name keep it.
   Future<void> _applyPendingName() async {
     final n = _pendingName;
     try {
@@ -122,7 +120,11 @@ class AuthController extends GetxController {
   }) async {
     final n = name.trim();
     if (n.length < 2) {
-      _toast('Name required', 'Please enter your name (min 2 letters).', ok: false);
+      _toast(
+        'Name required',
+        'Please enter your name (min 2 letters).',
+        ok: false,
+      );
       return false;
     }
     _setLoading(true);

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/controllers/auth_controller.dart';
@@ -17,7 +16,7 @@ final AuthController auth = Get.find<AuthController>();
 Widget profileTab(HomeController h) {
   return GetBuilder<AuthController>(
     builder: (a) {
-          return ListView(
+      return ListView(
         padding: EdgeInsets.zero,
         children: [
           Container(
@@ -71,7 +70,9 @@ Widget profileTab(HomeController h) {
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
                     ),
                   ),
                 ],
@@ -99,7 +100,9 @@ Widget profileTab(HomeController h) {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: openSaved,
-                        child: Row(children: [_stat('${h.saved.length}', 'Saved')]),
+                        child: Row(
+                          children: [_stat('${h.saved.length}', 'Saved')],
+                        ),
                       ),
                     ),
                     _divider(),
