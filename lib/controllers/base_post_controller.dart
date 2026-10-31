@@ -34,7 +34,7 @@ abstract class BasePostController extends GetxController {
   }
 
   void toggleLike(Post p) {
-    Db.toggleLike(p.id, p.isLikedBy(myUid)).catchError((e) {
+    Db.toggleLike(p.id, p.isLikedBy(myUid), ownerUid: p.uid).catchError((e) {
       showToast('Error', '$e', ok: false);
     });
   }

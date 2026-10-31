@@ -92,12 +92,32 @@ class Db {
     });
   }
 
-  static Future<void> toggleLike(String postId, bool currentlyLiked) {
-    return _posts.doc(postId).update({
+  static Future<void> toggleLike(
+    String postId,
+    bool currentlyLiked, {
+    String? ownerUid,
+  }) async {
+    await _posts.doc(postId).update({
       'likes': currentlyLiked
           ? FieldValue.arrayRemove([myUid])
           : FieldValue.arrayUnion([myUid]),
     });
+    if (ownerUid == null || ownerUid.isEmpty || ownerUid == myUid) return;
+    final id = 'like_${postId}_$myUid'; // one notification per person per post
+    try {
+      if (currentlyLiked) {
+        await removeNotification(ownerUid, id);
+      } else {
+        await addNotification(
+          toUid: ownerUid,
+          type: 'like',
+          title: '${nameOf(me)} liked your post',
+          body: 'Your post got a new like.',
+          postId: postId,
+          docId: id,
+        );
+      }
+    } catch (_) {/* notification is best-effort */}
   }
 
   static Future<void> deletePost(String postId) => _posts.doc(postId).delete();
@@ -108,9 +128,10 @@ class Db {
   static Stream<QuerySnapshot<Map<String, dynamic>>> commentsStream(String postId) =>
       _posts.doc(postId).collection('comments').orderBy('createdAt').limit(200).snapshots();
 
-  static Future<void> addComment(String postId, String text) {
+  static Future<void> addComment(String postId, String text) async {
     final u = me!;
     final post = _posts.doc(postId);
+    final ownerUid = ((await post.get()).data()?['uid'] ?? '') as String;
     final batch = _fs.batch();
     batch.set(post.collection('comments').doc(), {
       'uid': u.uid,
@@ -119,8 +140,82 @@ class Db {
       'createdAt': FieldValue.serverTimestamp(),
     });
     batch.update(post, {'commentCount': FieldValue.increment(1)});
-    return batch.commit();
+    await batch.commit();
+    try {
+      await addNotification(
+        toUid: ownerUid,
+        type: 'comment',
+        title: '${nameOf(u)} commented on your post',
+        body: text.length > 80 ? '${text.substring(0, 80)}...' : text,
+        postId: postId,
+      );
+    } catch (_) {/* notification is best-effort */}
   }
+
+  // -------------------------------------------------------- notifications
+  static CollectionReference<Map<String, dynamic>> _notifs(String uid) =>
+      _fs.collection('users').doc(uid).collection('notifications');
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> notificationsStream() =>
+      _notifs(myUid).orderBy('createdAt', descending: true).limit(50).snapshots();
+
+  /// Writes an in-app notification into the receiver's inbox. A Cloud Function
+  /// (see SETUP_NOTIFICATIONS.md) turns each new doc into a push message.
+  static Future<void> addNotification({
+    required String toUid,
+    required String type, // like | comment
+    required String title,
+    required String body,
+    String? postId,
+    String? docId,
+  }) {
+    if (toUid.isEmpty || toUid == myUid) return Future.value();
+    final ref = docId == null ? _notifs(toUid).doc() : _notifs(toUid).doc(docId);
+    return ref.set({
+      'type': type,
+      'title': title,
+      'body': body,
+      'postId': postId,
+      'fromUid': myUid,
+      'fromName': nameOf(me),
+      'read': false,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  static Future<void> removeNotification(String toUid, String docId) =>
+      _notifs(toUid).doc(docId).delete();
+
+  static Future<void> markNotificationRead(String id) =>
+      _notifs(myUid).doc(id).update({'read': true});
+
+  static Future<void> markAllNotificationsRead(Iterable<String> ids) async {
+    final batch = _fs.batch();
+    for (final id in ids) {
+      batch.update(_notifs(myUid).doc(id), {'read': true});
+    }
+    await batch.commit();
+  }
+
+  static Future<void> deleteMyNotification(String id) => _notifs(myUid).doc(id).delete();
+
+  static Stream<DocumentSnapshot<Map<String, dynamic>>> myProfileStream() =>
+      _fs.collection('users').doc(myUid).snapshots();
+
+  static Future<void> setNotifPref(String key, bool value) =>
+      _fs.collection('users').doc(myUid).set({
+        'notifPrefs': {key: value},
+      }, SetOptions(merge: true));
+
+  static Future<void> addFcmToken(String token) =>
+      _fs.collection('users').doc(myUid).set({
+        'fcmTokens': FieldValue.arrayUnion([token]),
+      }, SetOptions(merge: true));
+
+  static Future<void> removeFcmToken(String token) =>
+      _fs.collection('users').doc(myUid).set({
+        'fcmTokens': FieldValue.arrayRemove([token]),
+      }, SetOptions(merge: true));
 
   // ----------------------------------------------------------------- chat
   static String chatId(String a, String b) {

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:login_learn_new_app/controllers/edit_profile_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
+import 'package:login_learn_new_app/views/notifications/notifications_screen.dart';
 import 'package:login_learn_new_app/views/profile/widgets/profile_widgets.dart';
 import 'package:login_learn_new_app/widgets/common.dart' show softShadow;
 
@@ -74,7 +75,7 @@ class EditProfileScreen extends StatelessWidget {
               ProfileMenuTile(
                 icon: Icons.notifications_none_rounded,
                 title: 'Notifications',
-                onTap: () => profileSoon('Notifications'),
+                onTap: () => Get.to(() => const NotificationsScreen()),
               ),
               ProfileMenuTile(
                 icon: Icons.shield_outlined,

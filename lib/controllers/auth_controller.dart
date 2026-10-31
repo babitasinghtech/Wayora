@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:login_learn_new_app/services/db.dart';
+import 'package:login_learn_new_app/services/push_service.dart';
+import 'package:login_learn_new_app/services/session_service.dart';
 import 'package:login_learn_new_app/views/auth/otp_screen.dart';
 
 enum OtpMethod { phone, email }
@@ -19,6 +21,9 @@ class AuthController extends GetxController {
   bool obscurePassword = true;
   bool obscureConfirm = true;
   bool get isLoggedIn => user != null;
+
+  /// false until Firebase has restored the saved session (see main.dart splash)
+  bool authReady = false;
 
   // ---------- OTP state ----------
   OtpMethod otpMethod = OtpMethod.phone;
@@ -172,17 +177,36 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     user = _auth.currentUser;
+    authReady = user != null;
     _syncProfile(user);
     loadProfileExtras();
+    if (user != null) {
+      SessionService.save(user!);
+      PushService.start();
+    }
+    // safety net: never keep the splash forever
+    Future.delayed(const Duration(seconds: 4), () {
+      if (!authReady) {
+        authReady = true;
+        update();
+      }
+    });
     _sub = _auth.authStateChanges().listen((u) {
       user = u;
+      authReady = true;
       if (u == null) {
         photoBytes = null;
         bio = '';
+        SessionService.clear(); // logged out (or session expired)
+      } else {
+        SessionService.save(u); // remember this login on the device
       }
       update();
       _syncProfile(u); // keep users/{uid} up to date (chat + calls need it)
-      if (u != null) loadProfileExtras();
+      if (u != null) {
+        loadProfileExtras();
+        PushService.start();
+      }
     });
   }
 
@@ -255,6 +279,8 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     try {
+      await PushService.stop(); // remove this device token while still signed in
+      await SessionService.clear();
       await _auth.signOut();
       _toast('Logged out', 'See you soon!', ok: true);
     } catch (e) {

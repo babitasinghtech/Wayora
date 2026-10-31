@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:login_learn_new_app/controllers/notification_controller.dart';
 import 'package:login_learn_new_app/controllers/post_controller.dart';
 import 'package:login_learn_new_app/core/constants/app_color.dart';
+import 'package:login_learn_new_app/views/notifications/notifications_screen.dart';
 import 'package:login_learn_new_app/views/post/widgets/post_card.dart';
 import 'package:login_learn_new_app/views/post/widgets/post_composer.dart';
 import 'package:login_learn_new_app/views/post/widgets/post_states.dart';
@@ -56,6 +58,30 @@ class PostTab extends StatelessWidget {
                   style: const TextStyle(color: Colors.black45, fontSize: 13),
                 ),
               ],
+            ),
+          ),
+          GetBuilder<NotificationController>(
+            init: NotificationController.ensure(),
+            builder: (n) => GestureDetector(
+              onTap: () => Get.to(() => const NotificationsScreen()),
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black12),
+                ),
+                child: Badge(
+                  isLabelVisible: n.unread > 0,
+                  label: Text('${n.unread}'),
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: AppColor.kInk,
+                    size: 24,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
