@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// All Firestore reads/writes for users, posts, comments and chat.
 class Db {
   static final FirebaseFirestore _fs = FirebaseFirestore.instance;
 
@@ -46,13 +45,19 @@ class Db {
     };
     if (photoB64 != null) data['photo'] = photoB64;
     if (removePhoto) data['photo'] = FieldValue.delete();
-    return _fs.collection('users').doc(myUid).set(data, SetOptions(merge: true));
+    return _fs
+        .collection('users')
+        .doc(myUid)
+        .set(data, SetOptions(merge: true));
   }
 
   /// After a phone user sets their name, replace the old (phone-number)
   /// author name on their existing posts.
   static Future<void> updateMyPostsName(String name) async {
-    final snap = await _fs.collection('posts').where('uid', isEqualTo: myUid).get();
+    final snap = await _fs
+        .collection('posts')
+        .where('uid', isEqualTo: myUid)
+        .get();
     if (snap.docs.isEmpty) return;
     final batch = _fs.batch();
     for (final d in snap.docs) {
@@ -65,15 +70,17 @@ class Db {
       _fs.collection('users').limit(300).snapshots();
 
   // ---------------------------------------------------------------- posts
-  static CollectionReference<Map<String, dynamic>> get _posts => _fs.collection('posts');
+  static CollectionReference<Map<String, dynamic>> get _posts =>
+      _fs.collection('posts');
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> postsStream() =>
       _posts.orderBy('createdAt', descending: true).limit(50).snapshots();
 
   /// Posts of the given users (max 30 ids). No orderBy on purpose, so no
   /// composite index is needed - the controller sorts by time.
-  static Stream<QuerySnapshot<Map<String, dynamic>>> postsByUsersStream(List<String> uids) =>
-      _posts.where('uid', whereIn: uids).snapshots();
+  static Stream<QuerySnapshot<Map<String, dynamic>>> postsByUsersStream(
+    List<String> uids,
+  ) => _posts.where('uid', whereIn: uids).snapshots();
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> myPostsStream() =>
       _posts.where('uid', isEqualTo: myUid).snapshots();
@@ -117,7 +124,9 @@ class Db {
           docId: id,
         );
       }
-    } catch (_) {/* notification is best-effort */}
+    } catch (_) {
+      /* notification is best-effort */
+    }
   }
 
   static Future<void> deletePost(String postId) => _posts.doc(postId).delete();
@@ -125,8 +134,14 @@ class Db {
   static Future<void> countShare(String postId) =>
       _posts.doc(postId).update({'shareCount': FieldValue.increment(1)});
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> commentsStream(String postId) =>
-      _posts.doc(postId).collection('comments').orderBy('createdAt').limit(200).snapshots();
+  static Stream<QuerySnapshot<Map<String, dynamic>>> commentsStream(
+    String postId,
+  ) => _posts
+      .doc(postId)
+      .collection('comments')
+      .orderBy('createdAt')
+      .limit(200)
+      .snapshots();
 
   static Future<void> addComment(String postId, String text) async {
     final u = me!;
@@ -149,7 +164,9 @@ class Db {
         body: text.length > 80 ? '${text.substring(0, 80)}...' : text,
         postId: postId,
       );
-    } catch (_) {/* notification is best-effort */}
+    } catch (_) {
+      /* notification is best-effort */
+    }
   }
 
   // -------------------------------------------------------- notifications
@@ -157,7 +174,9 @@ class Db {
       _fs.collection('users').doc(uid).collection('notifications');
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> notificationsStream() =>
-      _notifs(myUid).orderBy('createdAt', descending: true).limit(50).snapshots();
+      _notifs(
+        myUid,
+      ).orderBy('createdAt', descending: true).limit(50).snapshots();
 
   /// Writes an in-app notification into the receiver's inbox. A Cloud Function
   /// (see SETUP_NOTIFICATIONS.md) turns each new doc into a push message.
@@ -170,7 +189,9 @@ class Db {
     String? docId,
   }) {
     if (toUid.isEmpty || toUid == myUid) return Future.value();
-    final ref = docId == null ? _notifs(toUid).doc() : _notifs(toUid).doc(docId);
+    final ref = docId == null
+        ? _notifs(toUid).doc()
+        : _notifs(toUid).doc(docId);
     return ref.set({
       'type': type,
       'title': title,
@@ -197,7 +218,8 @@ class Db {
     await batch.commit();
   }
 
-  static Future<void> deleteMyNotification(String id) => _notifs(myUid).doc(id).delete();
+  static Future<void> deleteMyNotification(String id) =>
+      _notifs(myUid).doc(id).delete();
 
   static Stream<DocumentSnapshot<Map<String, dynamic>>> myProfileStream() =>
       _fs.collection('users').doc(myUid).snapshots();
@@ -228,7 +250,9 @@ class Db {
       .where('participants', arrayContains: myUid)
       .snapshots();
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> messagesStream(String peerId) => _fs
+  static Stream<QuerySnapshot<Map<String, dynamic>>> messagesStream(
+    String peerId,
+  ) => _fs
       .collection('chats')
       .doc(chatId(myUid, peerId))
       .collection('messages')
