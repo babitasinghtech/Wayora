@@ -31,23 +31,23 @@ Widget profileTab(HomeController h) {
             ),
             child: Column(
               children: [
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Profile',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
+                // const Align(
+                //   alignment: Alignment.centerLeft,
+                //   child: Text(
+                //     'Profile',
+                //     style: TextStyle(
+                //       color: Colors.white,
+                //       fontSize: 24,
+                //       fontWeight: FontWeight.w800,
+                //     ),
+                //   ),
+                // ),
                 const SizedBox(height: 18),
                 GestureDetector(
                   onTap: () => Get.to(() => const EditProfileScreen()),
                   child: ProfileAvatar(
                     initials: a.initials,
-                    radius: 46,
+                    radius: 55,
                     ring: Colors.white,
                     photo: a.photoBytes,
                   ),

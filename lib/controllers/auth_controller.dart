@@ -5,6 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:login_learn_new_app/core/constants/app_color.dart';
 import 'package:login_learn_new_app/services/db.dart';
 import 'package:login_learn_new_app/services/push_service.dart';
 import 'package:login_learn_new_app/services/session_service.dart';
@@ -491,7 +492,7 @@ class AuthController extends GetxController {
       snackPosition: SnackPosition.TOP,
       margin: const EdgeInsets.all(16),
       borderRadius: 14,
-      backgroundColor: ok ? const Color(0xFF2ECC71) : const Color(0xFFE74C3C),
+      backgroundColor: ok ? AppColor.kDark : const Color(0xFFE74C3C),
       colorText: Colors.white,
       icon: Icon(
         ok ? Icons.check_circle : Icons.error_outline,
