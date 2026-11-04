@@ -174,9 +174,10 @@ class Db {
       _fs.collection('users').doc(uid).collection('notifications');
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> notificationsStream() =>
-      _notifs(
-        myUid,
-      ).orderBy('createdAt', descending: true).limit(50).snapshots();
+      _notifs(myUid)
+          .orderBy('createdAt', descending: true)
+          .limit(50)
+          .snapshots();
 
   /// Writes an in-app notification into the receiver's inbox. A Cloud Function
   /// (see SETUP_NOTIFICATIONS.md) turns each new doc into a push message.
