@@ -52,7 +52,7 @@ class Db {
   }
 
   /// After a phone user sets their name, replace the old (phone-number)
-  /// author name on their existing posts.
+
   static Future<void> updateMyPostsName(String name) async {
     final snap = await _fs
         .collection('posts')

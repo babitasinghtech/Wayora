@@ -44,8 +44,7 @@ final List<Destination> _destinations = [
     price: 1299,
     days: 6,
     image: _img('1514282401047-d79a71a590e8'),
-    description:
-        'Crystal-clear lagoons, overwater villas and white-sand beaches. Perfect for snorkelling, sunset cruises and doing absolutely nothing.',
+    description: 'Crystal-clear lagoons, overwater villas and white-sand beaches. Perfect for snorkelling, sunset cruises and doing absolutely nothing.',
   ),
   Destination(
     name: 'Swiss Alps',
@@ -55,8 +54,7 @@ final List<Destination> _destinations = [
     price: 1099,
     days: 5,
     image: _img('1531366936337-7c912a4589a7'),
-    description:
-        'Snow-capped peaks, scenic train rides and cosy mountain villages. Ski in winter, hike alpine trails in summer.',
+    description: 'Snow-capped peaks, scenic train rides and cosy mountain villages. Ski in winter, hike alpine trails in summer.',
   ),
   Destination(
     name: 'Santorini',
@@ -66,8 +64,7 @@ final List<Destination> _destinations = [
     price: 999,
     days: 5,
     image: _img('1570077188670-e3a8d69ac5ff'),
-    description:
-        'White-washed houses, blue domes and the most famous sunsets in the Aegean. Wine tasting and caldera views included.',
+    description: 'White-washed houses, blue domes and the most famous sunsets in the Aegean. Wine tasting and caldera views included.',
   ),
   Destination(
     name: 'Paris',
@@ -77,8 +74,7 @@ final List<Destination> _destinations = [
     price: 899,
     days: 4,
     image: _img('1502602898657-3e91760cbb34'),
-    description:
-        'Museums, cafés and the Eiffel Tower lit up at night. A city made for slow walks and long dinners.',
+    description: 'Museums, cafés and the Eiffel Tower lit up at night. A city made for slow walks and long dinners.',
   ),
   Destination(
     name: 'Tokyo',
@@ -88,8 +84,7 @@ final List<Destination> _destinations = [
     price: 1199,
     days: 7,
     image: _img('1540959733332-eab4deabeeaf'),
-    description:
-        'Neon streets, sushi counters, quiet temples and bullet trains. Tradition and the future side by side.',
+    description: 'Neon streets, sushi counters, quiet temples and bullet trains. Tradition and the future side by side.',
   ),
   Destination(
     name: 'Banff National Park',
@@ -99,8 +94,7 @@ final List<Destination> _destinations = [
     price: 1049,
     days: 5,
     image: _img('1501785888041-af3ef285b470'),
-    description:
-        'Turquoise lakes, glaciers and wildlife in the Canadian Rockies. Ideal for hiking, canoeing and stargazing.',
+    description: 'Turquoise lakes, glaciers and wildlife in the Canadian Rockies. Ideal for hiking, canoeing and stargazing.',
   ),
   Destination(
     name: 'Ubud, Bali',
@@ -110,8 +104,7 @@ final List<Destination> _destinations = [
     price: 799,
     days: 6,
     image: _img('1537996194471-e657df975ab4'),
-    description:
-        'Rice terraces, jungle waterfalls and wellness retreats in the cultural heart of Bali.',
+    description: 'Rice terraces, jungle waterfalls and wellness retreats in the cultural heart of Bali.',
   ),
   Destination(
     name: 'Redwood Forest',
@@ -121,8 +114,7 @@ final List<Destination> _destinations = [
     price: 699,
     days: 3,
     image: _img('1441974231531-c6227db76b6e'),
-    description:
-        'Walk among the tallest trees on Earth. Misty trails, fresh air and complete silence.',
+    description: 'Walk among the tallest trees on Earth. Misty trails, fresh air and complete silence.',
   ),
 ];
 
@@ -147,7 +139,7 @@ String _money(int v) =>
     '\$${v.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',')}';
 
 // ============================================================
-// CONTROLLER (GetX)
+// HomeCONTROLLER (GetX)
 // ============================================================
 
 class HomeController extends GetxController {
